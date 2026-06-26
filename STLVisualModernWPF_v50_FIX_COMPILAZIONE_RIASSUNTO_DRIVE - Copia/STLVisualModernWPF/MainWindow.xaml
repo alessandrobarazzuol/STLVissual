@@ -1,4 +1,4 @@
-﻿<Window x:Class="STLVisualModernWPF.MainWindow"
+<Window x:Class="STLVisualModernWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="STL Visual Modern WPF - Alessandro Barazzuol"
@@ -76,7 +76,7 @@
                         <Button Style="{StaticResource GuideButton}" Content="Overload" Click="GuideOverloads_Click"/>
                         <Button Style="{StaticResource GuideButton}" Content="Costruttori" Click="GuideConstructors_Click"/>
                         <Button Style="{StaticResource GuideButton}" Background="#7C3AED" Content="DEF" Click="GuideDef_Click"/>
-                        <Button Style="{StaticResource GuideButton}" Background="#9333EA" Content="Riassunto" Click="Summary_Click"/>
+                        <Button Style="{StaticResource GuideButton}" Background="#DC2626" Foreground="White" FontWeight="Bold" Padding="14,9" MinWidth="145" MinHeight="38" Content="Riassunto Disegno" Click="Summary_Click"/>
                         
                     </WrapPanel>
 

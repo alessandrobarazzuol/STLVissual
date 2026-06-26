@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -173,11 +173,8 @@ namespace STLVisualModernWPF
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = downloadPath,
-                    UseShellExecute = true
-                });
+                LaunchInstallerAndCloseApp(downloadPath);
+                return;
             }
             catch (HttpRequestException ex)
             {
@@ -240,6 +237,49 @@ namespace STLVisualModernWPF
             await using var input = await response.Content.ReadAsStreamAsync();
             await using var output = File.Create(destinationPath);
             await input.CopyToAsync(output);
+        }
+
+        private static void LaunchInstallerAndCloseApp(string installerPath)
+        {
+            if (string.IsNullOrWhiteSpace(installerPath) || !File.Exists(installerPath))
+            {
+                MessageBox.Show("Il file di installazione scaricato non è stato trovato.", "Aggiornamento", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            string tempBatPath = System.IO.Path.Combine(
+                System.IO.Path.GetTempPath(),
+                "STLVisualModernWPF_AvviaAggiornamento.bat");
+
+            int currentPid = Process.GetCurrentProcess().Id;
+            string escapedInstallerPath = installerPath.Replace("\"", "\"\"");
+
+            string bat =
+                "@echo off\r\n" +
+                "setlocal\r\n" +
+                $"set \"INSTALLER={escapedInstallerPath}\"\r\n" +
+                $"set \"APP_PID={currentPid}\"\r\n" +
+                "timeout /t 2 /nobreak >nul\r\n" +
+                ":WAIT_APP_CLOSE\r\n" +
+                "tasklist /FI \"PID eq %APP_PID%\" | find \"%APP_PID%\" >nul\r\n" +
+                "if not errorlevel 1 (\r\n" +
+                "  timeout /t 1 /nobreak >nul\r\n" +
+                "  goto WAIT_APP_CLOSE\r\n" +
+                ")\r\n" +
+                "start \"\" \"%INSTALLER%\"\r\n" +
+                "endlocal\r\n" +
+                "del \"%~f0\" >nul 2>nul\r\n";
+
+            File.WriteAllText(tempBatPath, bat, Encoding.Default);
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = tempBatPath,
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            });
+
+            Application.Current.Shutdown();
         }
 
         private sealed class GitHubReleaseInfo
