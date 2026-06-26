@@ -76,7 +76,7 @@
                         <Button Style="{StaticResource GuideButton}" Content="Overload" Click="GuideOverloads_Click"/>
                         <Button Style="{StaticResource GuideButton}" Content="Costruttori" Click="GuideConstructors_Click"/>
                         <Button Style="{StaticResource GuideButton}" Background="#7C3AED" Content="DEF" Click="GuideDef_Click"/>
-                        <Button Style="{StaticResource GuideButton}" Background="#DC2626" Foreground="White" FontWeight="Bold" Padding="14,9" MinWidth="145" MinHeight="38" Content="Riassunto Disegno" Click="Summary_Click"/>
+                        <Button Style="{StaticResource GuideButton}" Background="#DC2626" Foreground="White" FontWeight="Bold" Padding="8,5" MinWidth="86" MinHeight="30" FontSize="12" Content="Disegni" Click="Summary_Click"/>
                         
                     </WrapPanel>
 

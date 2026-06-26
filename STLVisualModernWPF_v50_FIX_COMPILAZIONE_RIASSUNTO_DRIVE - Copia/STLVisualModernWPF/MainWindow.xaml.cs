@@ -42,6 +42,7 @@ namespace STLVisualModernWPF
         private readonly string ConfigFile;
         private readonly string ExercisesFolder;
         private readonly string SummariesFile;
+        private readonly string GitHubUpdateStateFile;
         private readonly string GoogleCredentialsFile;
         private readonly string GoogleTokenFolder;
         private const string GoogleDriveBackupFolderName = "STLVisualModernWPF_Alessandro_Barazzoli";
@@ -76,6 +77,7 @@ namespace STLVisualModernWPF
             GuidesFile = System.IO.Path.Combine(AppFolder, "guide_personalizzate.json");
             ConfigFile = System.IO.Path.Combine(AppFolder, "config.json");
             SummariesFile = System.IO.Path.Combine(AppFolder, "riassunti_contenitori.json");
+            GitHubUpdateStateFile = System.IO.Path.Combine(AppFolder, "github_update_state.json");
             GoogleCredentialsFile = System.IO.Path.Combine(AppFolder, "credentials.json");
             GoogleTokenFolder = System.IO.Path.Combine(AppFolder, "GoogleDriveOAuthToken");
             ExercisesFolder = System.IO.Path.Combine(AppFolder, "esercizi_salvati");
@@ -148,8 +150,21 @@ namespace STLVisualModernWPF
                 string releaseTitle = string.IsNullOrWhiteSpace(release.Name) ? release.TagName : release.Name;
                 string sizeText = FormatBytes(asset.Size);
 
+                if (IsGitHubReleaseAlreadyInstalled(release, asset))
+                {
+                    MessageBox.Show(
+                        "Il programma è già aggiornato.\n\n" +
+                        $"Versione installata: {localVersion}\n" +
+                        $"Ultima release GitHub: {releaseTitle}\n" +
+                        $"Tag: {release.TagName}",
+                        "Cerca aggiornamenti",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
                 string message =
-                    "Ultima release trovata su GitHub:\n\n" +
+                    "Nuova versione disponibile su GitHub:\n\n" +
                     $"Release: {releaseTitle}\n" +
                     $"Tag: {release.TagName}\n" +
                     $"Versione installata: {localVersion}\n" +
@@ -173,6 +188,7 @@ namespace STLVisualModernWPF
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
+                SaveInstalledGitHubReleaseState(release, asset);
                 LaunchInstallerAndCloseApp(downloadPath);
                 return;
             }
@@ -189,6 +205,87 @@ namespace STLVisualModernWPF
                 BtnCercaAggiornamenti.IsEnabled = true;
                 BtnCercaAggiornamenti.Content = "⬇ AGGIORNAMENTI";
             }
+        }
+
+
+        private bool IsGitHubReleaseAlreadyInstalled(GitHubReleaseInfo release, GitHubReleaseAsset asset)
+        {
+            var state = LoadGitHubUpdateState();
+            string? releaseTag = NormalizeText(release.TagName);
+            string? assetName = NormalizeText(asset.Name);
+
+            if (!string.IsNullOrWhiteSpace(releaseTag) &&
+                string.Equals(NormalizeText(state?.InstalledTagName), releaseTag, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (!string.IsNullOrWhiteSpace(assetName) &&
+                string.Equals(NormalizeText(state?.InstalledAssetName), assetName, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            Version? remoteVersion = ExtractVersionFromRelease(release, asset);
+            Version? localVersion = Assembly.GetExecutingAssembly().GetName().Version;
+
+            if (remoteVersion != null && localVersion != null && localVersion >= remoteVersion)
+                return true;
+
+            return false;
+        }
+
+        private void SaveInstalledGitHubReleaseState(GitHubReleaseInfo release, GitHubReleaseAsset asset)
+        {
+            try
+            {
+                var state = new GitHubUpdateState
+                {
+                    InstalledTagName = release.TagName,
+                    InstalledReleaseName = release.Name,
+                    InstalledAssetName = asset.Name,
+                    InstalledAt = DateTimeOffset.Now,
+                    InstalledAssemblyVersion = GetLocalVersionText()
+                };
+
+                string json = JsonSerializer.Serialize(state, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(GitHubUpdateStateFile, json, Encoding.UTF8);
+            }
+            catch
+            {
+                // Non bloccare l'aggiornamento se non riesco a salvare lo stato.
+            }
+        }
+
+        private GitHubUpdateState? LoadGitHubUpdateState()
+        {
+            try
+            {
+                if (!File.Exists(GitHubUpdateStateFile)) return null;
+                string json = File.ReadAllText(GitHubUpdateStateFile, Encoding.UTF8);
+                return JsonSerializer.Deserialize<GitHubUpdateState>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string? NormalizeText(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
+
+        private static Version? ExtractVersionFromRelease(GitHubReleaseInfo release, GitHubReleaseAsset asset)
+        {
+            string text = string.Join(" ", new[] { release.Name, release.TagName, asset.Name }.Where(x => !string.IsNullOrWhiteSpace(x)));
+            var match = Regex.Match(text, @"(?<!\d)(\d+)\.(\d+)(?:\.(\d+))?(?:\.(\d+))?(?!\d)");
+            if (!match.Success) return null;
+
+            int major = int.Parse(match.Groups[1].Value);
+            int minor = int.Parse(match.Groups[2].Value);
+            int build = match.Groups[3].Success ? int.Parse(match.Groups[3].Value) : 0;
+            int revision = match.Groups[4].Success ? int.Parse(match.Groups[4].Value) : 0;
+            return new Version(major, minor, build, revision);
         }
 
         private static bool IsInstallerAsset(string? name)
@@ -280,6 +377,15 @@ namespace STLVisualModernWPF
             });
 
             Application.Current.Shutdown();
+        }
+
+        private sealed class GitHubUpdateState
+        {
+            public string? InstalledTagName { get; set; }
+            public string? InstalledReleaseName { get; set; }
+            public string? InstalledAssetName { get; set; }
+            public DateTimeOffset? InstalledAt { get; set; }
+            public string? InstalledAssemblyVersion { get; set; }
         }
 
         private sealed class GitHubReleaseInfo
