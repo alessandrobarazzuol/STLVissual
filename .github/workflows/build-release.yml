@@ -56,7 +56,9 @@ jobs:
           $files = Get-ChildItem -Path . -Recurse -Include *.exe,*.zip -File |
             Where-Object {
               $_.FullName -notmatch "\\.git\\" -and
-              $_.FullName -notmatch "release-output" -and
+              $_.FullName -notmatch "\\release-output\\" -and
+              $_.FullName -notmatch "\\bin\\Debug\\" -and
+              $_.FullName -notmatch "\\obj\\" -and
               (
                 $_.Name -match "setup|installer|install|STL|Visual" -or
                 $_.DirectoryName -match "Output|Installer|Setup|release|Release"
@@ -76,18 +78,37 @@ jobs:
 
           Get-ChildItem release-output
 
-      - name: Create automatic GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload artifact backup
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: build-${{ github.run_number }}
-          name: STL Visual build ${{ github.run_number }}
-          body: |
-            Release automatica generata da GitHub Actions.
+          name: STLVisual_Setup
+          path: release-output/*
+          if-no-files-found: error
 
-            Commit: ${{ github.sha }}
-            Branch: ${{ github.ref_name }}
-          files: release-output/*
-          draft: false
-          prerelease: false
+      - name: Create GitHub Release
+        shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "build-${{ github.run_number }}"
+          $title = "STL Visual build ${{ github.run_number }}"
+          $notes = @"
+          Release automatica generata da GitHub Actions.
+
+          Commit: ${{ github.sha }}
+          Branch: ${{ github.ref_name }}
+          "@
+
+          $assetFiles = Get-ChildItem -Path "release-output" -File | ForEach-Object { $_.FullName }
+
+          if (-not $assetFiles -or $assetFiles.Count -eq 0) {
+            Write-Error "Nessun file da caricare nella Release."
+            exit 1
+          }
+
+          Write-Host "Creo la Release: $tag"
+          gh release create $tag $assetFiles `
+            --repo "${{ github.repository }}" `
+            --title "$title" `
+            --notes "$notes" `
+            --latest
