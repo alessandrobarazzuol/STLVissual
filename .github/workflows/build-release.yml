@@ -22,6 +22,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Install Inno Setup
+        shell: pwsh
         run: choco install innosetup -y --no-progress
 
       - name: Find project folder
@@ -64,7 +65,7 @@ jobs:
                 $_.DirectoryName -match "Output|Installer|Setup|release|Release"
               )
             } |
-            Sort-Object LastWriteTime -Descending
+            Sort-Object Length -Descending
 
           if (-not $files -or $files.Count -eq 0) {
             Write-Error "Nessun installer trovato dopo la compilazione."
@@ -72,26 +73,21 @@ jobs:
           }
 
           foreach ($f in $files) {
-            Copy-Item $f.FullName -Destination "release-output" -Force
+            $safeName = $f.Name -replace '[^a-zA-Z0-9._-]', '_'
+            $dest = Join-Path "release-output" $safeName
+            Copy-Item $f.FullName -Destination $dest -Force
             Write-Host "Aggiunto alla release: $($f.FullName)"
           }
 
-          Get-ChildItem release-output
+          Get-ChildItem release-output | Format-Table Name, Length
 
-      - name: Upload artifact backup
-        uses: actions/upload-artifact@v4
-        with:
-          name: STLVisual_Setup
-          path: release-output/*
-          if-no-files-found: error
-
-      - name: Create GitHub Release
+      - name: Create GitHub Release and upload installer
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $tag = "build-${{ github.run_number }}"
-          $title = "STL Visual build ${{ github.run_number }}"
+          $tag = "stlvisual-build-${{ github.run_number }}-${{ github.run_attempt }}"
+          $title = "STL Visual build ${{ github.run_number }}.${{ github.run_attempt }}"
           $notes = @"
           Release automatica generata da GitHub Actions.
 
@@ -99,16 +95,11 @@ jobs:
           Branch: ${{ github.ref_name }}
           "@
 
-          $assetFiles = Get-ChildItem -Path "release-output" -File | ForEach-Object { $_.FullName }
-
-          if (-not $assetFiles -or $assetFiles.Count -eq 0) {
+          $assets = Get-ChildItem -Path "release-output" -File | Select-Object -ExpandProperty FullName
+          if (-not $assets -or $assets.Count -eq 0) {
             Write-Error "Nessun file da caricare nella Release."
             exit 1
           }
 
           Write-Host "Creo la Release: $tag"
-          gh release create $tag $assetFiles `
-            --repo "${{ github.repository }}" `
-            --title "$title" `
-            --notes "$notes" `
-            --latest
+          gh release create $tag $assets --title $title --notes $notes --target "${{ github.sha }}" --latest
