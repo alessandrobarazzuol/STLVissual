@@ -1,4 +1,4 @@
-<Window x:Class="STLVisualModernWPF.MainWindow"
+﻿<Window x:Class="STLVisualModernWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="STL Visual Modern WPF - Alessandro Barazzuol"
@@ -28,6 +28,7 @@
                     <Separator Margin="0,10,0,7" Background="#333333"/>
                     <Button x:Name="BtnSalvaTutto" Style="{StaticResource ActionButton}" Content="💾 SALVA" Click="SaveAll_Click" ToolTip="Salva guida, esercizi, riassunti e struttura cartelle; poi esporta su Google Drive/OAuth."/>
                     <Button x:Name="BtnImportaTutto" Style="{StaticResource ActionButton}" Content="📥 IMPORTA" Click="ImportAll_Click" ToolTip="Importa da Google Drive/OAuth o da file JSON guida, esercizi, riassunti e cartelle."/>
+                    <Button x:Name="BtnCercaAggiornamenti" Style="{StaticResource ActionButton}" Content="⬇ AGGIORNAMENTI" Click="CheckGitHubUpdates_Click" ToolTip="Controlla le GitHub Releases, mostra dimensione del setup e installa la versione disponibile."/>
                 </StackPanel>
 
                 <StackPanel DockPanel.Dock="Bottom" Margin="0,20,0,0">

@@ -5,9 +5,11 @@ using System.Diagnostics;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,6 +34,9 @@ namespace STLVisualModernWPF
     public partial class MainWindow : Window
     {
         private const string Password = "20242lbg";
+        private const string GitHubOwner = "alessandrobarazzuol";
+        private const string GitHubRepo = "STLVissual";
+        private const string GitHubLatestReleaseApiUrl = "https://api.github.com/repos/alessandrobarazzuol/STLVissual/releases/latest";
         private readonly string AppFolder;
         private readonly string GuidesFile;
         private readonly string ConfigFile;
@@ -92,6 +97,176 @@ namespace STLVisualModernWPF
             RefreshSavedExercisesList();
             RegisterEditableShiftClickPopups();
             StartDriveAutoSync();
+        }
+
+
+        private async void CheckGitHubUpdates_Click(object sender, RoutedEventArgs e)
+        {
+            await CheckGitHubUpdatesAsync();
+        }
+
+        private async Task CheckGitHubUpdatesAsync()
+        {
+            try
+            {
+                BtnCercaAggiornamenti.IsEnabled = false;
+                BtnCercaAggiornamenti.Content = "Controllo...";
+
+                using var http = new HttpClient();
+                http.DefaultRequestHeaders.UserAgent.ParseAdd("STLVisualModernWPF-Updater/1.0");
+                http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+
+                string json = await http.GetStringAsync(GitHubLatestReleaseApiUrl);
+                var release = JsonSerializer.Deserialize<GitHubReleaseInfo>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (release == null)
+                {
+                    MessageBox.Show("Non riesco a leggere l'ultima release da GitHub.", "Aggiornamenti GitHub", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var asset = release.Assets?
+                    .Where(a => !string.IsNullOrWhiteSpace(a.BrowserDownloadUrl))
+                    .OrderByDescending(a => IsInstallerAsset(a.Name))
+                    .ThenByDescending(a => a.Size)
+                    .FirstOrDefault(a => IsInstallerAsset(a.Name));
+
+                if (asset == null)
+                {
+                    MessageBox.Show(
+                        "Ho trovato l'ultima release su GitHub, ma non contiene un file di installazione .exe o .zip.",
+                        "Aggiornamenti GitHub",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                string localVersion = GetLocalVersionText();
+                string releaseTitle = string.IsNullOrWhiteSpace(release.Name) ? release.TagName : release.Name;
+                string sizeText = FormatBytes(asset.Size);
+
+                string message =
+                    "Ultima release trovata su GitHub:\n\n" +
+                    $"Release: {releaseTitle}\n" +
+                    $"Tag: {release.TagName}\n" +
+                    $"Versione installata: {localVersion}\n" +
+                    $"File: {asset.Name}\n" +
+                    $"Dimensione: {sizeText}\n\n" +
+                    "Vuoi scaricare e avviare l'installazione?";
+
+                var answer = MessageBox.Show(message, "Cerca aggiornamenti", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (answer != MessageBoxResult.Yes) return;
+
+                string tempFolder = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "STLVisualModernWPF_Update");
+                Directory.CreateDirectory(tempFolder);
+                string downloadPath = System.IO.Path.Combine(tempFolder, MakeSafeFileName(asset.Name));
+
+                BtnCercaAggiornamenti.Content = "Download...";
+                await DownloadFileAsync(asset.BrowserDownloadUrl!, downloadPath);
+
+                MessageBox.Show(
+                    "Download completato. Ora verrà avviato il file di installazione.\n\n" + downloadPath,
+                    "Aggiornamento scaricato",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = downloadPath,
+                    UseShellExecute = true
+                });
+            }
+            catch (HttpRequestException ex)
+            {
+                MessageBox.Show("Errore di rete durante il controllo aggiornamenti:\n\n" + ex.Message, "Aggiornamenti GitHub", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Errore durante il controllo aggiornamenti:\n\n" + ex.Message, "Aggiornamenti GitHub", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                BtnCercaAggiornamenti.IsEnabled = true;
+                BtnCercaAggiornamenti.Content = "⬇ AGGIORNAMENTI";
+            }
+        }
+
+        private static bool IsInstallerAsset(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return false;
+            string lower = name.ToLowerInvariant();
+            return lower.EndsWith(".exe") || lower.EndsWith(".zip") || lower.Contains("setup") || lower.Contains("installer") || lower.Contains("install");
+        }
+
+        private static string GetLocalVersionText()
+        {
+            try
+            {
+                Version? v = Assembly.GetExecutingAssembly().GetName().Version;
+                return v == null ? "non disponibile" : v.ToString();
+            }
+            catch
+            {
+                return "non disponibile";
+            }
+        }
+
+        private static string FormatBytes(long bytes)
+        {
+            if (bytes <= 0) return "dimensione non disponibile";
+            double mb = bytes / 1024d / 1024d;
+            return mb >= 1 ? $"{mb:0.0} MB" : $"{bytes / 1024d:0.0} KB";
+        }
+
+        private static string MakeSafeFileName(string fileName)
+        {
+            foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+                fileName = fileName.Replace(c, '_');
+            return fileName;
+        }
+
+        private static async Task DownloadFileAsync(string url, string destinationPath)
+        {
+            using var http = new HttpClient();
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("STLVisualModernWPF-Updater/1.0");
+            http.DefaultRequestHeaders.Accept.ParseAdd("application/octet-stream");
+
+            using var response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            await using var input = await response.Content.ReadAsStreamAsync();
+            await using var output = File.Create(destinationPath);
+            await input.CopyToAsync(output);
+        }
+
+        private sealed class GitHubReleaseInfo
+        {
+            [JsonPropertyName("name")]
+            public string? Name { get; set; }
+
+            [JsonPropertyName("tag_name")]
+            public string? TagName { get; set; }
+
+            [JsonPropertyName("published_at")]
+            public DateTimeOffset? PublishedAt { get; set; }
+
+            [JsonPropertyName("assets")]
+            public List<GitHubReleaseAsset>? Assets { get; set; }
+        }
+
+        private sealed class GitHubReleaseAsset
+        {
+            [JsonPropertyName("name")]
+            public string? Name { get; set; }
+
+            [JsonPropertyName("size")]
+            public long Size { get; set; }
+
+            [JsonPropertyName("browser_download_url")]
+            public string? BrowserDownloadUrl { get; set; }
         }
 
 
