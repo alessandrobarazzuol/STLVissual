@@ -1,0 +1,96 @@
+name: Build STL Visual Release
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SETUP_BAT: CREA_SETUP_COMPLETO_UN_CLICK.bat
+  INNO_FILE: setup_inno.iss
+
+jobs:
+  build-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Find project folder
+        shell: pwsh
+        run: |
+          $bat = Get-ChildItem -Path . -Recurse -Filter $env:SETUP_BAT | Select-Object -First 1
+          if (-not $bat) { throw "Non trovo $env:SETUP_BAT nel repository." }
+
+          $iss = Get-ChildItem -Path . -Recurse -Filter $env:INNO_FILE | Select-Object -First 1
+          if (-not $iss) { throw "Non trovo $env:INNO_FILE nel repository." }
+
+          $projectDir = $bat.Directory.FullName
+          echo "PROJECT_DIR=$projectDir" >> $env:GITHUB_ENV
+          echo "Trovata cartella progetto: $projectDir"
+
+      - name: Run setup batch
+        shell: cmd
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: call CREA_SETUP_COMPLETO_UN_CLICK.bat
+
+      - name: Collect installer files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release_files | Out-Null
+
+          $files = Get-ChildItem -Path "$env:PROJECT_DIR" -Recurse -Include *.exe,*.msi,*.zip |
+            Where-Object {
+              $_.FullName -match "Output|Installer|Setup|setup|Release|publish" -or
+              $_.Name -match "setup|install|STL|Visual"
+            } |
+            Sort-Object LastWriteTime -Descending
+
+          if (-not $files -or $files.Count -eq 0) {
+            throw "Nessun installer trovato dopo il BAT. Controlla dove viene creato il setup."
+          }
+
+          foreach ($f in $files) {
+            Copy-Item $f.FullName -Destination "release_files" -Force
+            Write-Host "Raccolto: $($f.FullName)"
+          }
+
+      - name: Create version name
+        shell: pwsh
+        run: |
+          $shortSha = "${{ github.sha }}".Substring(0,7)
+          $date = Get-Date -Format "yyyy.MM.dd-HHmm"
+          $tag = "auto-$date-$shortSha"
+          echo "RELEASE_TAG=$tag" >> $env:GITHUB_ENV
+          echo "RELEASE_NAME=STL Visual $tag" >> $env:GITHUB_ENV
+
+      - name: Upload setup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: STLVisual_Setup_${{ env.RELEASE_TAG }}
+          path: release_files/*
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_NAME }}
+          body: |
+            Build automatico generato da GitHub Actions.
+
+            Commit: ${{ github.sha }}
+            Branch: ${{ github.ref_name }}
+          files: release_files/*
+          make_latest: true
