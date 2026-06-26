@@ -1,0 +1,2 @@
+Programma didattico STL Visual Modern WPF.
+Copyright (C) Alessandro Barazzuol

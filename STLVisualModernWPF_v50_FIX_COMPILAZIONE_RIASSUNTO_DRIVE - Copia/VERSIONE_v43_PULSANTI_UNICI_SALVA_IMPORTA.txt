@@ -1,0 +1,11 @@
+VERSIONE v43 - Pulsanti unici SALVA / IMPORTA Drive
+
+Modifiche richieste:
+- Aggiunti nel menu sinistro, sotto list/vector/set/stack/queue/map, due pulsanti principali:
+  1) SALVA: salva guida, esercizio corrente, riassunti, modifiche e struttura cartelle; poi esporta il database su Google Drive locale/OAuth se configurato.
+  2) IMPORTA: importa il database da Google Drive OAuth, da Google Drive locale o da file JSON scelto manualmente.
+- Rimossi dalla schermata principale i pulsanti ridondanti: Salva guida/metodo, Esporta guide/esercizi, Importa guide/esercizi, Sincronizza Drive OAuth, Salva esercizio, Aggiorna esercizio.
+- La struttura delle cartelle viene inclusa nel database JSON tramite la sezione Cartelle e ricreata in importazione.
+- La sezione Impostazioni API è stata resa più chiara con istruzioni a elenco puntato e pulsante per caricare credentials.json OAuth Drive.
+
+Nota: nel pacchetto è incluso il codice sorgente modificato. Se l'eseguibile precompilato non riflette la modifica, aprire il progetto .csproj e ricompilare in .NET 8 su Windows.

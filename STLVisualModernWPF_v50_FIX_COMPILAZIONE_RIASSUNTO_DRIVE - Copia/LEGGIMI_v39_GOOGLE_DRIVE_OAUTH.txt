@@ -1,0 +1,16 @@
+VERSIONE v39 - Google Drive OAuth
+
+Aggiunto nel programma:
+- Pulsante "Carica OAuth Drive" per importare il file credentials.json creato da Google Cloud.
+- Pulsante "Sincronizza Drive OAuth" per salvare guide, esercizi e riassunti su Google Drive tramite login OAuth.
+- Importa guide/esercizi prova prima Google Drive OAuth se credentials.json è già caricato.
+- Salva guida, Salva esercizio e Aggiorna esercizio salvano anche su Google Drive OAuth, quando credentials.json è presente.
+
+Uso:
+1) Da Google Cloud crea OAuth Client ID per app desktop e scarica credentials.json.
+2) Nel programma premi "Carica OAuth Drive" e scegli credentials.json.
+3) Premi "Sincronizza Drive OAuth" oppure salva una guida/esercizio.
+4) Si apre il browser: accedi con l'account Google desiderato.
+5) Il database viene salvato nella cartella Drive: STLVisualModernWPF_Alessandro_Barazzoli
+
+Nota: il setup .exe incluso è quello già presente nella cartella originale. Per avere l'installer aggiornato bisogna ricompilare il progetto e rigenerare il setup con Inno Setup.

@@ -1,0 +1,11 @@
+VERSIONE v29 - Colori penna e gomma nel riassunto contenitori
+
+Modifiche rispetto alla v28:
+- mantenuto tutto il programma invariato;
+- nella finestra Riassunto / block notes è stata aggiunta la scelta colore penna;
+- colori disponibili: nero, blu, rosso, verde, viola;
+- aggiunto pulsante Penna per tornare a disegnare;
+- aggiunto pulsante Gomma per cancellare i tratti disegnati;
+- aggiunto pulsante Annulla tratto per togliere l'ultimo tratto;
+- resta disponibile Pulisci disegno per cancellare tutta l'area grafica;
+- il salvataggio del testo e del disegno resta nel JSON dei riassunti/esercizi/guide.

@@ -1,0 +1,20 @@
+VERSIONE v12
+
+Migliorie:
+- Guide più complete:
+  esempi di iteratori, insert, push/front/back, errori comuni, controlli sicuri.
+- Le guide restano modificabili e salvabili.
+- Scheda Compila C++:
+  editor convertito a RichTextBox;
+  pulsante 'Colora codice';
+  evidenziazione semplice tipo editor: keyword blu, commenti verdi, stringhe rosse, numeri gialli.
+- Meno blocchi:
+  animazione albero più veloce;
+  compilazione C++ continua a usare cartelle temporanee uniche.
+- Albero binario:
+  nodi più compatti;
+  layout più compatto;
+  pulsanti Zoom +, Zoom -, Adatta;
+  uso di ScaleTransform per zoom dell'albero.
+
+Copyright (C) Alessandro Barazzuol

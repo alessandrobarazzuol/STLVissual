@@ -1,0 +1,14 @@
+VERSIONE v26 - LOGIN CON SFONDO PERSONALIZZATO
+
+Modifiche applicate:
+- mantenute tutte le funzioni della v25;
+- aggiunta immagine allegata come sfondo della finestra password iniziale;
+- overlay scuro trasparente per rendere leggibile il login;
+- riquadro centrale moderno con titolo STL Visual;
+- pulsante ACCEDI in stile blu coerente con il programma;
+- pulsante Mostra password;
+- tasto Invio = accedi;
+- tasto Esc = esci;
+- indicazione versione in basso a destra.
+
+Nessuna modifica alle funzioni del visualizzatore STL, esercizi, guide, debugger o albero.

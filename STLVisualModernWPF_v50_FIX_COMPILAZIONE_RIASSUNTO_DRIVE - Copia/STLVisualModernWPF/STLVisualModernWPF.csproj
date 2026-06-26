@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <AssemblyName>STLVisualModernWPF</AssemblyName>
+    <RootNamespace>STLVisualModernWPF</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="app.ico" />
+    <Resource Include="Assets\login_background.jpeg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3699" />
+  </ItemGroup>
+
+</Project>

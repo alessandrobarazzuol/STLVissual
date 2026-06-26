@@ -1,0 +1,10 @@
+VERSIONE v22 - modifiche richieste
+
+- Mantiene le modifiche della v21.
+- Il pulsante "Pulisci testo" ora pulisce sia la consegna sia il codice sorgente generato.
+- Aggiunta vista ad albero degli esercizi salvati, organizzata per cartelle.
+- Aggiunto salvataggio esercizi dentro una cartella indicata dall'utente.
+- Aggiunta eliminazione di un singolo esercizio o di un'intera cartella con tutti gli esercizi contenuti.
+- Aggiunto pulsante viola "DEF" dopo "Costruttori".
+- Il pulsante DEF mostra una descrizione del contenitore selezionato: com'è fatto, come funziona e quando usarlo.
+- Export/import guide-esercizi ora conserva anche la struttura delle cartelle degli esercizi.

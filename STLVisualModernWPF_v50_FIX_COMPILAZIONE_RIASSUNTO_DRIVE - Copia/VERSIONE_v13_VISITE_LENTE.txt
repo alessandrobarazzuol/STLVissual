@@ -1,0 +1,11 @@
+VERSIONE v13
+
+Modifica:
+- Le visite dell'albero binario preorder, inorder e postorder sono state rallentate.
+- Ogni nodo resta illuminato più a lungo.
+- Il nodo corrente viene indicato chiaramente nel pannello a destra.
+
+Tempo evidenziazione:
+1200 ms per nodo.
+
+Copyright (C) Alessandro Barazzuol

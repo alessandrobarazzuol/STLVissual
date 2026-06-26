@@ -1,0 +1,13 @@
+STL Visual Modern WPF v47 - Setup universale corretto
+
+ISTRUZIONI:
+1. Fai doppio clic SOLO su CREA_SETUP_COMPLETO_UN_CLICK.bat.
+2. Il file BAT compila automaticamente tre versioni: win-x64, win-x86 e win-arm64.
+3. Il file BAT chiama automaticamente Inno Setup. Non devi aprire setup_inno.iss.
+4. Il file finale da distribuire sarà dentro Output:
+   STLVisualModernWPF_Setup_v47_UNIVERSALE_CORRETTO.exe
+
+CORREZIONE RISPETTO ALLA v46:
+- rimosso il controllo sbagliato nell'installer che cercava le cartelle publish accanto al setup già compilato;
+- il controllo delle cartelle publish ora avviene prima, nel BAT, dove ha senso;
+- l'installer contiene al suo interno x64, x86 e ARM64 e installa automaticamente la versione adatta al computer.

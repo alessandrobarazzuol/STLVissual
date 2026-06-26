@@ -1,0 +1,7 @@
+VERSIONE v25 - APRI CARTELLA ESERCIZI
+
+Modifiche rispetto alla v24:
+- mantenuto tutto il programma precedente senza cambiare le altre funzioni;
+- rimosso il pulsante "Copia codice" nella sezione Testo esercizio / consegna;
+- aggiunto al suo posto il pulsante "Apri cartella esercizi";
+- il nuovo pulsante apre direttamente da Windows Esplora file la cartella locale dove sono salvati gli esercizi, comprese sottocartelle e file JSON.

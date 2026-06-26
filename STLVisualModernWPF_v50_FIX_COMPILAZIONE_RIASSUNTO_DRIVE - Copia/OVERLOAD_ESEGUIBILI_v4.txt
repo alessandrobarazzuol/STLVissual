@@ -1,0 +1,15 @@
+VERSIONE v4 - BOTTONI OVERLOAD ESEGUIBILI
+
+Modifica richiesta:
+- Per i metodi con più overload, ora compaiono bottoni specifici nella sezione:
+  "Overload disponibili del metodo selezionato".
+- Esempio con insert:
+  insert(pos, value)
+  insert(pos, count, value)
+  insert(pos, first, last)
+  insert(pos, { ... })
+- Premendo ogni bottone, la demo modifica graficamente il contenitore secondo quell'overload.
+- Sono inclusi overload per list, vector, set, map, stack e queue dove disponibili.
+- Le guide restano modificabili e salvabili con "Salva guida/metodo".
+
+Copyright (C) Alessandro Barazzuol

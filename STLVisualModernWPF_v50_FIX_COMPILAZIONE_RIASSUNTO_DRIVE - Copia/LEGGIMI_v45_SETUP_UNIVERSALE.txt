@@ -1,0 +1,29 @@
+VERSIONE v45 - SETUP UNIVERSALE
+
+Modifiche principali:
+1) Il file 1_BUILD_PRIMA_DI_INNO.bat ora compila tre versioni self-contained:
+   - win-x64
+   - win-x86
+   - win-arm64
+
+2) Lo script setup_inno.iss crea un unico installer:
+   Output\STLVisualModernWPF_Setup_v45_UNIVERSALE.exe
+
+3) L'installer contiene tutte le architetture e installa automaticamente quella corretta sul PC Windows.
+
+4) Schermata login migliorata:
+   - orbite animate più belle;
+   - badge list, vector, set, stack, queue, map;
+   - glow centrale STL/C++;
+   - login con tasto Invio già attivo.
+
+ISTRUZIONI:
+- Apri la cartella del progetto.
+- Esegui 1_BUILD_PRIMA_DI_INNO.bat.
+- Se Inno Setup è installato, il setup viene creato automaticamente.
+- Distribuisci SOLO questo file:
+  Output\STLVisualModernWPF_Setup_v45_UNIVERSALE.exe
+
+NOTA:
+Un singolo EXE Windows veramente nativo per tutte le CPU non esiste in .NET WPF self-contained.
+La soluzione corretta è un installer unico che contiene x64, x86 e ARM64 e installa la build giusta.

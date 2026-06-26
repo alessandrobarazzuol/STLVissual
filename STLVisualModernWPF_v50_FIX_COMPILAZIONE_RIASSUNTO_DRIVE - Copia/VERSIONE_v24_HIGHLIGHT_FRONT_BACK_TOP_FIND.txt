@@ -1,0 +1,10 @@
+VERSIONE v24 - Evidenziazione elementi letti nei contenitori
+
+Modifica richiesta mantenendo la v23:
+- list: front/back evidenzia primo e ultimo nodo e mostra i valori restituiti.
+- vector: front/back evidenzia primo e ultimo; at/operator[] evidenzia l'indice letto.
+- queue: front evidenzia la testa; back evidenzia l'ultimo inserito.
+- stack: top evidenzia l'elemento in cima.
+- set: find/count/contains/begin/lower_bound/upper_bound evidenziano l'elemento coinvolto.
+- map: at/find/count/lower_bound/upper_bound/begin evidenziano la coppia chiave-valore coinvolta.
+- Sopra il nodo evidenziato compare una piccola etichetta didattica, ad esempio front(), back(), top().

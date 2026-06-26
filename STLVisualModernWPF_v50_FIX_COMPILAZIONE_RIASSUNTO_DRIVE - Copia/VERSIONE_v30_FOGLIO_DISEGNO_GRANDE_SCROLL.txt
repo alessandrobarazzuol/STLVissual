@@ -1,0 +1,9 @@
+VERSIONE v30 - FOGLIO DISEGNO GRANDE CON BARRE DI SCORRIMENTO
+
+Modifica aggiunta alla v29:
+- nella finestra Riassunto / block notes dei contenitori, l'area di disegno è ora più grande;
+- il foglio di disegno è esteso sia in orizzontale sia in verticale;
+- sono presenti barre di scorrimento automatiche orizzontale e verticale;
+- mantenute le funzioni della v29: colori penna, gomma, annulla tratto, pulisci disegno, salvataggio riassunto.
+
+Nessun'altra parte del programma è stata modificata.

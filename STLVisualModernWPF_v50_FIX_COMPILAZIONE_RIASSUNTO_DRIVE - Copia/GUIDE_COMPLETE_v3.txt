@@ -1,0 +1,17 @@
+VERSIONE v3 - GUIDE COMPLETE
+
+Modifiche:
+- Ogni metodo propone ora una guida già scritta e corretta.
+- Le guide includono descrizione, sintassi, esempi, overload, note ed errori comuni.
+- Aggiunto bottone Costruttori.
+- I bottoni dei metodi usano nomi più vicini alla sintassi C++, ad esempio:
+  push_front
+  push_back
+  front() / back()
+  size() / empty()
+  begin() / end()
+  at() / []
+- Le guide restano modificabili.
+- Premendo Salva guida/metodo, le modifiche vengono salvate e riproposte in futuro.
+
+Copyright (C) Alessandro Barazzuol

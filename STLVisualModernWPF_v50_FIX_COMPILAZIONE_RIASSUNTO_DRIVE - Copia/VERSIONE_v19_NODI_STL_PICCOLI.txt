@@ -1,0 +1,28 @@
+VERSIONE v19 - NODI STL PIÙ PICCOLI
+
+Modifica richiesta:
+- Rimpiccioliti i rettangoli dei nodi nel visualizzatore STL.
+- I nodi di list, vector, set, stack, queue e map occupano meno spazio.
+- Fino a circa 20 nodi si riesce a vedere meglio l'intero contenitore nel riquadro.
+- Ridotti anche:
+  - larghezza dei nodi;
+  - altezza dei nodi;
+  - spazio tra nodi;
+  - font interno;
+  - raggio degli angoli.
+
+Valori principali:
+- fino a 10 nodi: circa 55x34
+- fino a 20 nodi: circa 45x28
+- oltre 20 nodi: circa 38x24
+
+Il resto del programma resta invariato rispetto alla v18:
+- guide modificabili;
+- esporta/importa guide;
+- OpenRouter;
+- compilatore C++;
+- albero binario;
+- visite manuali;
+- gestione corretta dei duplicati nell'albero.
+
+Copyright (C) Alessandro Barazzuol

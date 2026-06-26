@@ -1,0 +1,5 @@
+VERSIONE v38
+- Albero esercizi nella finestra principale: sfondo bianco e testo nero.
+- Albero esercizi nel pop-up Shift+click: sfondo scuro e testo bianco.
+- Pop-up testo: aggiunti pulsanti A+, A-, evidenzia e colori testo.
+- Salva/Esporta prova a sincronizzare il database JSON anche nella cartella locale Google Drive, se Google Drive per desktop è installato.

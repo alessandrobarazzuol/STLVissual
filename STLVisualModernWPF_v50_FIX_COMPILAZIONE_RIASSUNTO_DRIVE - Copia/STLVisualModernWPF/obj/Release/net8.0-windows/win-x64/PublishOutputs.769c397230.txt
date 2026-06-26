@@ -1,0 +1,2 @@
+C:\Users\alessandrobarazzuol\Desktop\STLVisualModernWPF_CSharp_NET8_v20_Modifiche\STLVisualModernWPF\publish\STLVisualModernWPF.pdb
+C:\Users\alessandrobarazzuol\Desktop\STLVisualModernWPF_CSharp_NET8_v20_Modifiche\STLVisualModernWPF\publish\STLVisualModernWPF.exe

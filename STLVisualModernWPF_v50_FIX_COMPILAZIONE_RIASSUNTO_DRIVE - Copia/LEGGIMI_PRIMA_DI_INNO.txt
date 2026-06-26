@@ -1,0 +1,24 @@
+ISTRUZIONI IMPORTANTI
+
+L'errore di Inno Setup:
+"No files found matching ... STLVisualModernWPF\publish\*"
+
+significa che il programma non è stato ancora compilato.
+
+Procedura corretta:
+
+1. Esegui prima:
+   1_BUILD_PRIMA_DI_INNO.bat
+
+2. Aspetta che venga creata questa cartella:
+   STLVisualModernWPF\publish
+
+3. Dentro deve esserci:
+   STLVisualModernWPF.exe
+
+4. Solo dopo apri:
+   setup_inno.iss
+
+5. Premi Compile in Inno Setup.
+
+Serve .NET 8 SDK installato nel computer.

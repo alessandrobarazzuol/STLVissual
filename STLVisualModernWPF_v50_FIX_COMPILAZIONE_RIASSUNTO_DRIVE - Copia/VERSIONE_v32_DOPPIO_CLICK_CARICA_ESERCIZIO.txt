@@ -1,0 +1,1 @@
+v32: doppio clic su un esercizio nella vista ad albero carica automaticamente consegna, soluzione e riassunti senza premere Carica esercizio.

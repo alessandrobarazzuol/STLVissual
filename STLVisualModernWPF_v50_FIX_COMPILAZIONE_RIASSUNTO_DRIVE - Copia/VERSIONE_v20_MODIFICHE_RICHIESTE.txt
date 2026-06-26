@@ -1,0 +1,15 @@
+VERSIONE v20 - Modifiche richieste
+
+1) Visualizzatore STL:
+- area del contenitore ridotta e centrata;
+- nodi piu piccoli;
+- quando si inserisce un nuovo nodo/elemento, il nuovo resta evidenziato e quelli precedenti diventano disattivati/grigi.
+
+2) Scheda Visualizzatore STL - esercizi con API:
+- aggiunto pulsante "Salva esercizio";
+- aggiunto pulsante "Carica esercizio";
+- aggiunto pulsante "Aggiorna lista";
+- aggiunta lista a tendina con gli esercizi salvati;
+- il salvataggio conserva insieme consegna e soluzione generata.
+
+Gli esercizi vengono salvati in AppData/Roaming/STLVisualModernWPF/esercizi_salvati in formato .json.

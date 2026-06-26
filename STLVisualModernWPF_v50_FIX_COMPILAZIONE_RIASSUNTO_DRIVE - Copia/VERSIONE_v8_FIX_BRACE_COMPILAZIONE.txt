@@ -1,0 +1,12 @@
+VERSIONE v8
+
+Correzione:
+- Sistemato definitivamente errore CS1513 'previsto il segno }' nel file MainWindow.xaml.cs.
+- Ricostruita la parte finale del codice dell'albero binario con parentesi corrette.
+- Mantenuti scroll, salvataggio guida visibile e animazione visite.
+
+Procedura:
+1. Eseguire 1_BUILD_PRIMA_DI_INNO.bat
+2. Solo dopo compilare setup_inno.iss
+
+Copyright (C) Alessandro Barazzuol

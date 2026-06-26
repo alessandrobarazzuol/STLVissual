@@ -1,0 +1,36 @@
+VERSIONE v5 - PARAMETRI OVERLOAD E ALBERO BINARIO
+
+Modifiche:
+1. Sistemato layout overload:
+   - i bottoni non si sovrappongono più alle scritte;
+   - area overload separata e scrollabile.
+
+2. Aggiunti campi per usare gli overload con parametri scelti dall'utente:
+   - posizione
+   - valore
+   - quantità
+   - valori range
+   - chiave map
+
+3. Gli overload come insert(pos,value), insert(pos,count,value), insert(pos,first,last)
+   ora usano i valori inseriti dall'utente.
+
+4. Aggiunta nuova scheda:
+   Albero binario
+
+Funzioni albero:
+- inserisci nodo
+- elimina valore
+- crea albero random
+- crea albero bilanciato
+- cancella albero
+- visita preorder
+- visita inorder
+- visita postorder
+- conta valore
+- altezza / numero nodi
+- visualizzazione grafica con nodi e rami
+
+5. I nomi dei pulsanti sono stati resi più vicini ai nomi reali dei metodi.
+
+Copyright (C) Alessandro Barazzuol

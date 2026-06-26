@@ -1,0 +1,15 @@
+VERSIONE v7 - CORREZIONE COMPILAZIONE + FIX LAYOUT/ALBERO
+
+Questa versione corregge l'errore della v6.
+
+Correzioni:
+- Eliminati errori C# isCurrent/currentNode/AnimateTreeVisit.
+- Pulsante Salva guida/metodo spostato e sempre visibile.
+- Visualizzazione STL con scroll e canvas più grande.
+- Albero binario con scroll e canvas più grande.
+- Visite preorder/inorder/postorder animate:
+  nodo corrente giallo;
+  nodi già visitati arancioni;
+  sequenza aggiornata nel pannello a destra.
+
+Copyright (C) Alessandro Barazzuol

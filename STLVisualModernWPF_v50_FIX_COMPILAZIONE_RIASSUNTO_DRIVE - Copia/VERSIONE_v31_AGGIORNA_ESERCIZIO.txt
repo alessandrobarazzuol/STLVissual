@@ -1,0 +1,7 @@
+v31 - Aggiorna esercizio caricato
+
+- mantenuta la versione 30 invariata;
+- aggiunto pulsante "Aggiorna esercizio" vicino a "Salva esercizio";
+- quando viene caricato un esercizio JSON, il programma memorizza il file di origine;
+- premendo "Aggiorna esercizio" vengono sovrascritti consegna, codice sorgente e riassunti nel file caricato;
+- "Salva esercizio" continua invece a creare un nuovo file.

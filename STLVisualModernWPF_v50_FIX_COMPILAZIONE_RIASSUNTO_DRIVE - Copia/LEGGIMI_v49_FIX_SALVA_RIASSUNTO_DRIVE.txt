@@ -1,0 +1,6 @@
+VERSIONE v49 - FIX SALVA RIASSUNTO DRIVE
+
+Modifica unica rispetto alla versione funzionante precedente:
+- Il pulsante "Salva riassunto" nella finestra del disegno ora salva localmente e sincronizza subito anche su Drive, come guide ed esercizi.
+- Inclusi testo del riassunto, disegno InkCanvas e data salvataggio nel database unico.
+- setup_inno.iss aggiornato alla versione corretta v49.

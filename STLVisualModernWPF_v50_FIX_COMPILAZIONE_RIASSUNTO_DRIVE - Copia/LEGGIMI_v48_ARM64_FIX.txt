@@ -1,0 +1,6 @@
+VERSIONE v48
+
+Correzione installer universale su Windows ARM64.
+Rimossa la costante Inno {sysinfo:ProcessorArchitecture}, che su alcune versioni di Inno Setup genera errore interno.
+Usa solo CREA_SETUP_COMPLETO_UN_CLICK.bat.
+Il setup finale sara in Output\STLVisualModernWPF_Setup_v48_UNIVERSALE_ARM64_FIX.exe

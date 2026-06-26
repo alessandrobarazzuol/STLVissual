@@ -1,0 +1,13 @@
+VERSIONE v11
+
+Correzione definitiva:
+- Rimosso ogni uso errato di fontSize fuori dai metodi grafici.
+- fontSize resta solo dove viene dichiarato correttamente:
+  DrawContainer
+  DrawTreeNode
+- La parte di evidenziazione del codice C++ usa FontSize fisso 14.
+
+Questa versione corregge l'errore:
+CS0103: Il nome 'fontSize' non esiste nel contesto corrente.
+
+Copyright (C) Alessandro Barazzuol

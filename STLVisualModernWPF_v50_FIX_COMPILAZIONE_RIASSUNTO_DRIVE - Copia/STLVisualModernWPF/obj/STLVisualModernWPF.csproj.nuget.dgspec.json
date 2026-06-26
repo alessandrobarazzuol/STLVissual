@@ -1,0 +1,98 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\alessandrobarazzuol\\Desktop\\STLVisualModernWPF_v50_FIX_COMPILAZIONE_RIASSUNTO_DRIVE\\STLVisualModernWPF\\STLVisualModernWPF.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\alessandrobarazzuol\\Desktop\\STLVisualModernWPF_v50_FIX_COMPILAZIONE_RIASSUNTO_DRIVE\\STLVisualModernWPF\\STLVisualModernWPF.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\alessandrobarazzuol\\Desktop\\STLVisualModernWPF_v50_FIX_COMPILAZIONE_RIASSUNTO_DRIVE\\STLVisualModernWPF\\STLVisualModernWPF.csproj",
+        "projectName": "STLVisualModernWPF",
+        "projectPath": "C:\\Users\\alessandrobarazzuol\\Desktop\\STLVisualModernWPF_v50_FIX_COMPILAZIONE_RIASSUNTO_DRIVE\\STLVisualModernWPF\\STLVisualModernWPF.csproj",
+        "packagesPath": "C:\\Users\\alessandrobarazzuol\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\alessandrobarazzuol\\Desktop\\STLVisualModernWPF_v50_FIX_COMPILAZIONE_RIASSUNTO_DRIVE\\STLVisualModernWPF\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\alessandrobarazzuol\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0-windows"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0-windows7.0": {
+            "targetAlias": "net8.0-windows",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
+          "dependencies": {
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.69.0, )"
+            },
+            "Google.Apis.Drive.v3": {
+              "target": "Package",
+              "version": "[1.69.0.3699, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.win-arm64",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.win-arm64",
+              "version": "[8.0.28, 8.0.28]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-arm64",
+              "version": "[8.0.28, 8.0.28]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WPF": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.422/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-arm64": {
+          "#import": []
+        }
+      }
+    }
+  }
+}

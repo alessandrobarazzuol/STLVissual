@@ -1,0 +1,5 @@
+VERSIONE v37 - FIX COLORE ALBERO POP-UP
+
+Nel pop-up ingrandito del file system/esercizi è stato forzato il colore bianco del testo dei TreeViewItem.
+Questo corregge il problema per cui l'albero risultava invisibile su sfondo scuro, perché Windows/WPF poteva applicare testo nero o trasparente.
+Rimane attivo il doppio clic sui file esercizio per importarli/caricarli nel programma.

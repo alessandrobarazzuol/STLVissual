@@ -1,0 +1,12 @@
+VERSIONE v16
+
+Correzione:
+- Sistemato errore di compilazione della v15.
+- I metodi PrepareManualVisit, TreeNextVisit_Click e TreeResetVisit_Click ora sono presenti nel codice C#.
+- Le visite preorder, inorder e postorder sono manuali:
+  1. scegli il tipo di visita;
+  2. premi Avanti visita;
+  3. viene illuminato un nodo alla volta;
+  4. Reset visita ricomincia la sequenza.
+
+Copyright (C) Alessandro Barazzuol

@@ -1,0 +1,8 @@
+Versione v36: progetto completo con setup/script originali + modifiche popup.
+
+- Shift + clic sulle aree richieste apre una finestra popup grande.
+- Nel popup delle caselle di testo puoi modificare il contenuto e confermare con OK.
+- Nel popup dell'albero/file system puoi fare doppio clic su un esercizio per importarlo/caricarlo.
+- Sono inclusi setup_inno.iss e 1_BUILD_PRIMA_DI_INNO.bat per ricreare il setup.
+
+Nota: se usi il file Setup_STLVisualModernWPF_v19.exe già presente, potrebbe essere il vecchio installer; per avere l'installer aggiornato ricompila prima il progetto e poi genera il setup con Inno Setup.

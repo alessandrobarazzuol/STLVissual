@@ -1,0 +1,8 @@
+VERSIONE v44 - Login + autosincronizzazione Drive
+
+Modifiche:
+- corretto warning CS8600 nella creazione dello stile TreeViewItem del popup albero;
+- nella finestra login il tasto INVIO conferma l'accesso, come il pulsante ACCEDI;
+- aggiunta animazione grafica nel login con orbita dei contenitori STL: list, vector, set, stack, queue, map;
+- aggiunta sincronizzazione automatica con Google Drive OAuth: dopo aver configurato credentials.json, il programma prova a importare periodicamente il database Drive senza dover premere ogni volta IMPORTA;
+- il pulsante SALVA continua a salvare localmente e a caricare su Drive guida, esercizi, riassunti e struttura cartelle.

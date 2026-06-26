@@ -1,0 +1,11 @@
+VERSIONE v10
+
+Correzione:
+- Sistemato errore CS0103: 'fontSize' non esiste nel contesto corrente.
+- Mantenute le modifiche della v9:
+  compilatore C++ con cartelle temporanee uniche;
+  ridimensionamento elementi STL;
+  ridimensionamento albero binario;
+  overload più leggibili.
+
+Copyright (C) Alessandro Barazzuol

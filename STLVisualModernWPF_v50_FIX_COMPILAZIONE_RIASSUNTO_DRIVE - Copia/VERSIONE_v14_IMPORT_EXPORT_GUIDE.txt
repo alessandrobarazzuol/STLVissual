@@ -1,0 +1,21 @@
+VERSIONE v14
+
+Nuova funzione:
+- aggiunti due pulsanti vicino a 'Salva guida/metodo':
+  1. Esporta guide
+  2. Importa guide
+
+A cosa servono:
+- Esporta guide salva il database delle guide personalizzate in un file JSON.
+- Importa guide permette di caricare quel file JSON in una nuova versione del programma.
+
+Così, quando aggiorni il programma, puoi conservare:
+- spiegazioni modificate;
+- esempi aggiunti;
+- appunti personali;
+- guide personalizzate dei metodi.
+
+Il database interno resta salvato in:
+%APPDATA%\STLVisualModernWPF\guide_personalizzate.json
+
+Copyright (C) Alessandro Barazzuol

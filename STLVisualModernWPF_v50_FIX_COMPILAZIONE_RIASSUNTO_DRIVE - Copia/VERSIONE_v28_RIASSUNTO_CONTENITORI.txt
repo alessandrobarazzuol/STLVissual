@@ -1,0 +1,12 @@
+VERSIONE v28 - RIASSUNTO / BLOCK NOTES PER CONTENITORI
+
+Modifica aggiunta rispetto alla v27:
+- aggiunto pulsante viola "Riassunto" vicino a DEF;
+- il pulsante apre una finestra pop-up relativa al contenitore selezionato;
+- nella finestra si possono scrivere appunti testuali;
+- nella stessa finestra si può disegnare con il mouse tramite area tipo block notes;
+- ogni riassunto è salvato per contenitore: list, vector, set, stack, queue, map;
+- i riassunti vengono salvati in JSON insieme agli altri dati esportabili/importabili;
+- quando si salva un esercizio, vengono salvati anche i riassunti dei contenitori.
+
+Tutto il resto del programma è rimasto invariato rispetto alla v27.

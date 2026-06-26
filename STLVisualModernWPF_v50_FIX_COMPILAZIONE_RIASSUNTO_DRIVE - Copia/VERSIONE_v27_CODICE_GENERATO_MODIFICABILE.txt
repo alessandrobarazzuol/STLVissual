@@ -1,0 +1,6 @@
+VERSIONE v27 - CODICE GENERATO MODIFICABILE
+
+Modifica richiesta:
+- mantenuto tutto il programma come nella v26;
+- resa modificabile la casella del codice C++ generato da OpenRouter;
+- ora si può scrivere, correggere o integrare manualmente il codice generato prima di salvarlo come .cpp o come esercizio.

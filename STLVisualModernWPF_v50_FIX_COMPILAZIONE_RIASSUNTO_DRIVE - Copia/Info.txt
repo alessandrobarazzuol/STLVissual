@@ -1,0 +1,2 @@
+Installer per STL Visual Modern WPF in C# .NET 8.
+Password programma: 20xxxxxg

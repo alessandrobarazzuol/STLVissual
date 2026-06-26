@@ -1,0 +1,1 @@
+Versione v39: aggiunto supporto Google Drive API con OAuth. Pulsante per caricare credentials.json, login Google al primo uso, upload/download del database guide/esercizi/riassunti su Drive. Mantiene anche backup locale Google Drive per desktop.

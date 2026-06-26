@@ -1,0 +1,6 @@
+Versione v33
+- Rimossi dalla zona esercizio/consegna i pulsanti: Pulisci testo, Esempio, Salva .cpp.
+- Rimossa la casella per il nome cartella/esercizio.
+- Rimosso l'elenco a discesa degli esercizi.
+- Salva esercizio apre direttamente la finestra file system per scegliere cartella e nome del file JSON.
+- Mantenuto il resto della versione precedente invariato.

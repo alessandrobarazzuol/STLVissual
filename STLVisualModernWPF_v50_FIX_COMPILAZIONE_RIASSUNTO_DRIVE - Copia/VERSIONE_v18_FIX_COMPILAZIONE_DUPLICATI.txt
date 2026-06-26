@@ -1,0 +1,9 @@
+VERSIONE v18
+
+Correzione:
+- Sistemato errore CS0019 nella visita dell'albero con nodi duplicati.
+- Era rimasto un fallback new List<int>() mentre ora la visita usa List<TreeNodeDemo>.
+- Ora il codice usa new List<TreeNodeDemo>().
+- Confermato fix: due nodi con lo stesso valore vengono illuminati uno alla volta.
+
+Copyright (C) Alessandro Barazzuol

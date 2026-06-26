@@ -1,0 +1,1 @@
+Apri questa cartella con Visual Studio Community oppure usa build_publish.bat.

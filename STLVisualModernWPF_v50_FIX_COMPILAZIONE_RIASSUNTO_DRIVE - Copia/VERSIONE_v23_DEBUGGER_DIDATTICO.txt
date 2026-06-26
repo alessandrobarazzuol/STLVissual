@@ -1,0 +1,14 @@
+VERSIONE v23 - DEBUGGER DIDATTICO VARIABILI
+
+Mantenuta la versione v22 e aggiunta una nuova scheda separata: "Debugger variabili".
+
+Funzioni aggiunte:
+- area per incollare/scrivere codice sorgente C++;
+- pulsante "Avvia debugger" per analizzare il codice;
+- pulsante "Procedi" per avanzare passo passo;
+- evidenziazione della riga corrente;
+- casella variabili che mostra come cambiano i valori;
+- pulsanti per copiare il codice dalla scheda "Compila C++" o dalla soluzione generata;
+- esempio già pronto.
+
+Nota: il debugger è didattico e offline. Simula codice C++ semplice con variabili int/double/float/string/char/bool, assegnazioni, ++, --, for e while semplici.

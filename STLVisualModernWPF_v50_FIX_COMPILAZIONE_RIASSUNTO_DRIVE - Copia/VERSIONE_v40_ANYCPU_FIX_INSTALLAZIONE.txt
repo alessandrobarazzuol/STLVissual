@@ -1,0 +1,11 @@
+VERSIONE v40 - ANY CPU + FIX INSTALLAZIONE
+
+Modifiche:
+- Build impostata in modalita Any CPU / framework-dependent, senza -r win-x64.
+- Aggiornato Google.Apis.Drive.v3 alla versione risolta 1.69.0.3699 per eliminare il warning NU1603.
+- Lo script di build chiude STLVisualModernWPF.exe prima di compilare/installare.
+- Inno Setup prova a chiudere il programma prima di sovrascrivere i file, evitando DeleteFile failed; codice 5; Accesso negato.
+
+Nota:
+- La versione Any CPU richiede .NET 8 Desktop Runtime installato sul PC destinatario.
+- Se vuoi una versione totalmente autonoma senza runtime, conviene creare setup separati x64 e arm64.

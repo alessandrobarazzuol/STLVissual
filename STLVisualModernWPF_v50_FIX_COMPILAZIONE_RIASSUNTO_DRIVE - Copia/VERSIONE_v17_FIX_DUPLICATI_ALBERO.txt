@@ -1,0 +1,14 @@
+VERSIONE v17
+
+Correzione:
+- Nelle visite preorder, inorder e postorder, i nodi non vengono più evidenziati in base al valore.
+- Ora la visita usa il riferimento al nodo specifico.
+- Se ci sono due nodi con lo stesso numero, vengono illuminati uno alla volta:
+  prima il nodo realmente visitato;
+  poi l'altro nodo uguale quando arriva il suo turno.
+
+Esempio:
+se radice = 10 e una foglia = 10,
+preorder illumina prima la radice 10 e solo dopo la foglia 10.
+
+Copyright (C) Alessandro Barazzuol

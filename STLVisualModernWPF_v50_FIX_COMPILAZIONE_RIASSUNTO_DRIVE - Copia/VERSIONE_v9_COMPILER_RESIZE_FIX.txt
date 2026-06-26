@@ -1,0 +1,13 @@
+VERSIONE v9 - FIX COMPILATORE E RIDIMENSIONAMENTO
+
+Correzioni:
+- Compilatore C++: ora ogni compilazione usa una cartella temporanea nuova e un main.exe nuovo.
+  Questo evita l'errore 'cannot open output file' quando il vecchio eseguibile è bloccato.
+- Visualizzatore STL: fino a circa 20 nodi gli elementi vengono ridimensionati automaticamente.
+- Albero binario: ridimensionamento automatico di nodi e distanze per restare meglio nell'area visibile.
+- Overload/insert: area pulsanti più alta e più leggibile.
+
+Nota:
+Per compilare C++ serve comunque g++ nel PATH.
+
+Copyright (C) Alessandro Barazzuol

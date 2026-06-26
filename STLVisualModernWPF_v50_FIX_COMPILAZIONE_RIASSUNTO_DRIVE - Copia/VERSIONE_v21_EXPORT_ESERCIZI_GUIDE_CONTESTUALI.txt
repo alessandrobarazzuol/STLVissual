@@ -1,0 +1,8 @@
+VERSIONE v21 - Export/import guide + esercizi e guide contestuali
+
+Modifiche:
+- Il pulsante Esporta guide ora esporta anche gli esercizi salvati.
+- Il file esportato contiene sia le guide personalizzate sia tutti gli esercizi JSON salvati.
+- Il pulsante Importa guide ora importa anche gli esercizi salvati e aggiorna la lista nella scheda Visualizzatore STL.
+- Rimane compatibile anche con i vecchi file che contenevano solo le guide.
+- I pulsanti Iteratori, Scorrimento, Accesso, Errori, Overload e Costruttori ora mostrano spiegazioni riferite al contenitore selezionato: list, vector, set, stack, queue o map.

@@ -1,0 +1,18 @@
+VERSIONE v46 - SETUP COMPLETO CON UN SOLO BAT
+
+Cosa devi fare:
+1. Fai doppio clic su CREA_SETUP_COMPLETO_UN_CLICK.bat
+2. Aspetta la compilazione x64, x86 e ARM64.
+3. Il BAT avvia da solo Inno Setup.
+4. Alla fine si apre la cartella Output.
+5. Distribuisci SOLO questo file:
+   Output\STLVisualModernWPF_Setup_v46_UNIVERSALE.exe
+
+Non devi aprire manualmente setup_inno.iss.
+setup_inno.iss resta nel progetto solo per Inno Setup, ma viene usato automaticamente dal BAT.
+
+Requisiti sul tuo PC per creare il setup:
+- .NET 8 SDK installato
+- Inno Setup 6 installato
+
+Sul PC dell'utente finale invece non serve installare .NET, perché il publish è self-contained.
