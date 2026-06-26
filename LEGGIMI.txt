@@ -1,2 +1,2 @@
 ESGUIRE IL FILE 
-	1_BUILD_PRIMA_DI_INNO.bat  il quale crea pacchetti di installazione su OUTPUT 
+	CREA_SETUP_COMPLETO_UN_CLICK.bat  il quale crea pacchetti di installazione su OUTPUT 
