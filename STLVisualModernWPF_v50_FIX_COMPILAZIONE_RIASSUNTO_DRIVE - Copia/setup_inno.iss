@@ -1,10 +1,10 @@
 ; SETUP INNO - STL Visual Modern WPF
-; v49 - setup universale corretto
+; v51 - setup universale corretto con fix Tasks
 ; Crea un unico installer che contiene x64, x86 e ARM64.
 ; Durante l'installazione copia automaticamente la versione adatta al PC.
 
 #define MyAppName        "STL Visual Modern WPF"
-#define MyAppVersion     "4.9"
+#define MyAppVersion     "5.1"
 #define MyAppPublisher   "Alessandro Barazzuol"
 #define MyAppURL         "https://www.alessandrobarazzuol.com"
 #define MyAppExeName     "STLVisualModernWPF.exe"
@@ -30,7 +30,7 @@ PrivilegesRequired=lowest
 LicenseFile=licenza.txt
 InfoBeforeFile=Info.txt
 OutputDir=Output
-OutputBaseFilename=STLVisualModernWPF_Setup_v49_UNIVERSALE_CORRETTO
+OutputBaseFilename=STLVisualModernWPF_Setup_v51_UNIVERSALE_CORRETTO
 SetupIconFile=STLVisualModernWPF\{#MyAppIcoName}
 UninstallDisplayIcon={app}\{#MyAppUninstallIco}
 Compression=lzma2/ultra64
@@ -81,7 +81,7 @@ Name: "{autodesktop}\{#MyAppName}"; \
 Name: "{userdesktop}\{#MyAppUninstall}"; \
     Filename: "{uninstallexe}"; \
     IconFilename: "{app}\appD.ico"; \
-    Tasks: desktopiconuninstallss
+    Tasks: desktopiconuninstall
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Avvia {#MyAppName}"; Flags: nowait postinstall skipifsilent

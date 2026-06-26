@@ -460,8 +460,10 @@ namespace STLVisualModernWPF
                     IsEnabled = label != "-",
                     Background = new SolidColorBrush(Color.FromRgb(14, 99, 156)),
                     Foreground = Brushes.White,
-                    Margin = new Thickness(4),
-                    Padding = new Thickness(10, 8, 10, 8)
+                    Margin = new Thickness(3),
+                    Padding = new Thickness(8, 5, 8, 5),
+                    FontSize = 12,
+                    MinHeight = 30
                 };
                 btn.Click += (_, _) => RunMethod(label);
                 MethodsGrid.Children.Add(btn);
@@ -4589,12 +4591,12 @@ int main() {
                 Background = new SolidColorBrush(Color.FromArgb(175, 0, 0, 0))
             });
 
-            root.Children.Add(CreateRotatingStlOrbit());
+            root.Children.Add(CreateStlCornerAnimation());
 
             var card = new Border
             {
-                Width = 420,
-                Padding = new Thickness(28),
+                Width = 430,
+                Padding = new Thickness(26),
                 CornerRadius = new CornerRadius(18),
                 BorderBrush = new SolidColorBrush(Color.FromRgb(0, 145, 255)),
                 BorderThickness = new Thickness(1.5),
@@ -4637,6 +4639,7 @@ int main() {
             box.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 145, 255));
             box.BorderThickness = new Thickness(1.2);
             box.KeyDown += Password_KeyDown;
+            box.PreviewKeyDown += Password_KeyDown;
             panel.Children.Add(box);
 
             visibleBox.Height = 36;
@@ -4648,6 +4651,7 @@ int main() {
             visibleBox.BorderThickness = new Thickness(1.2);
             visibleBox.Visibility = Visibility.Collapsed;
             visibleBox.KeyDown += Password_KeyDown;
+            visibleBox.PreviewKeyDown += Password_KeyDown;
             panel.Children.Add(visibleBox);
 
             showPassword.Content = "Mostra password";
@@ -4691,7 +4695,7 @@ int main() {
 
             root.Children.Add(new TextBlock
             {
-                Text = "STL Visual • Versione 45 • © Alessandro Barazzuol",
+                Text = "STL Visual • Versione 51 • © Alessandro Barazzuol",
                 Foreground = new SolidColorBrush(Color.FromRgb(180, 190, 205)),
                 FontSize = 11,
                 HorizontalAlignment = HorizontalAlignment.Right,
@@ -4702,176 +4706,125 @@ int main() {
             Content = root;
             Loaded += (_, _) => box.Focus();
             KeyDown += Password_KeyDown;
+            PreviewKeyDown += Password_KeyDown;
         }
 
 
-        private UIElement CreateRotatingStlOrbit()
+        private UIElement CreateStlCornerAnimation()
         {
             var canvas = new Canvas
             {
-                Width = 700,
-                Height = 390,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
                 IsHitTestVisible = false,
-                Opacity = 0.98
+                Opacity = 0.96
             };
 
-            // Alone centrale / glow
-            var glow = new Ellipse
+            string[] names = { "std::list", "std::vector", "std::set", "std::stack", "std::queue", "std::map" };
+            double[,] positions =
             {
-                Width = 205,
-                Height = 205,
-                Fill = new RadialGradientBrush
-                {
-                    GradientStops = new GradientStopCollection
-                    {
-                        new GradientStop(Color.FromArgb(150, 0, 200, 255), 0.00),
-                        new GradientStop(Color.FromArgb(70, 89, 0, 255), 0.45),
-                        new GradientStop(Color.FromArgb(0, 0, 0, 0), 1.00)
-                    }
-                },
-                Effect = new BlurEffect { Radius = 12 }
+                { 26, 26 }, { 548, 26 }, { 34, 344 },
+                { 552, 344 }, { 86, 86 }, { 506, 286 }
             };
-            Canvas.SetLeft(glow, 247);
-            Canvas.SetTop(glow, 92);
-            canvas.Children.Add(glow);
 
-            var centerRing = new Ellipse
-            {
-                Width = 126,
-                Height = 126,
-                Stroke = new LinearGradientBrush(Color.FromRgb(0, 210, 255), Color.FromRgb(150, 90, 255), 45),
-                StrokeThickness = 3,
-                Fill = new SolidColorBrush(Color.FromArgb(120, 5, 12, 28)),
-                Effect = new DropShadowEffect { Color = Color.FromRgb(0, 190, 255), BlurRadius = 22, ShadowDepth = 0, Opacity = 0.75 }
-            };
-            Canvas.SetLeft(centerRing, 287);
-            Canvas.SetTop(centerRing, 132);
-            canvas.Children.Add(centerRing);
-
-            var centerText = new TextBlock
-            {
-                Text = "STL\nC++",
-                Foreground = Brushes.White,
-                FontWeight = FontWeights.Black,
-                FontSize = 24,
-                TextAlignment = TextAlignment.Center,
-                Width = 126,
-                Height = 78,
-                LineHeight = 31,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            Canvas.SetLeft(centerText, 287);
-            Canvas.SetTop(centerText, 157);
-            canvas.Children.Add(centerText);
-
-            var orbitBack = new Canvas
-            {
-                Width = 700,
-                Height = 390,
-                RenderTransformOrigin = new Point(0.5, 0.5),
-                Opacity = 0.72
-            };
-            orbitBack.RenderTransform = new RotateTransform(0);
-            AddOrbitEllipse(orbitBack, 84, 54, 532, 282, 90, 0, 255, 1.4);
-            AddOrbitDots(orbitBack, 350, 195, 238, 122, 12, 7, Color.FromRgb(110, 231, 255));
-            canvas.Children.Add(orbitBack);
-
-            var orbitFront = new Canvas
-            {
-                Width = 700,
-                Height = 390,
-                RenderTransformOrigin = new Point(0.5, 0.5)
-            };
-            orbitFront.RenderTransform = new RotateTransform(0);
-            AddOrbitEllipse(orbitFront, 38, 34, 624, 322, 0, 160, 255, 2.2);
-
-            string[] names = { "list", "vector", "set", "stack", "queue", "map" };
-            double cx = 350, cy = 195, rx = 312, ry = 161;
             for (int i = 0; i < names.Length; i++)
             {
-                double angle = 2 * Math.PI * i / names.Length - Math.PI / 10;
-                double x = cx + rx * Math.Cos(angle) - 49;
-                double y = cy + ry * Math.Sin(angle) - 23;
-
-                var badge = new Border
-                {
-                    Width = 98,
-                    Height = 46,
-                    CornerRadius = new CornerRadius(23),
-                    Background = new LinearGradientBrush(Color.FromArgb(235, 6, 20, 48), Color.FromArgb(220, 18, 54, 105), 90),
-                    BorderBrush = new LinearGradientBrush(Color.FromRgb(0, 220, 255), Color.FromRgb(167, 139, 250), 0),
-                    BorderThickness = new Thickness(1.7),
-                    Effect = new DropShadowEffect { Color = Color.FromRgb(0, 190, 255), BlurRadius = 16, ShadowDepth = 0, Opacity = 0.45 },
-                    Child = new TextBlock
-                    {
-                        Text = names[i],
-                        Foreground = Brushes.White,
-                        FontSize = 15,
-                        FontWeight = FontWeights.Bold,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Center
-                    }
-                };
-                Canvas.SetLeft(badge, x);
-                Canvas.SetTop(badge, y);
-                orbitFront.Children.Add(badge);
+                var badge = CreateContainerBadge(names[i], i);
+                Canvas.SetLeft(badge, positions[i, 0]);
+                Canvas.SetTop(badge, positions[i, 1]);
+                canvas.Children.Add(badge);
             }
 
-            AddOrbitDots(orbitFront, 350, 195, 286, 146, 18, 5, Color.FromRgb(167, 139, 250));
-            canvas.Children.Add(orbitFront);
+            for (int i = 0; i < 18; i++)
+            {
+                var dot = new Ellipse
+                {
+                    Width = 4 + (i % 3),
+                    Height = 4 + (i % 3),
+                    Fill = new SolidColorBrush(Color.FromArgb(130, 56, 189, 248)),
+                    Effect = new DropShadowEffect { Color = Color.FromRgb(56, 189, 248), BlurRadius = 10, ShadowDepth = 0, Opacity = 0.7 }
+                };
+                Canvas.SetLeft(dot, 120 + (i * 31) % 520);
+                Canvas.SetTop(dot, 70 + (i * 47) % 280);
+                canvas.Children.Add(dot);
 
-            var slow = new DoubleAnimation { From = 0, To = 360, Duration = TimeSpan.FromSeconds(24), RepeatBehavior = RepeatBehavior.Forever };
-            var fastReverse = new DoubleAnimation { From = 360, To = 0, Duration = TimeSpan.FromSeconds(15), RepeatBehavior = RepeatBehavior.Forever };
-            orbitBack.Loaded += (_, _) => ((RotateTransform)orbitBack.RenderTransform).BeginAnimation(RotateTransform.AngleProperty, slow);
-            orbitFront.Loaded += (_, _) => ((RotateTransform)orbitFront.RenderTransform).BeginAnimation(RotateTransform.AngleProperty, fastReverse);
+                var pulse = new DoubleAnimation
+                {
+                    From = 0.25,
+                    To = 1.0,
+                    Duration = TimeSpan.FromSeconds(1.4 + i * 0.05),
+                    AutoReverse = true,
+                    RepeatBehavior = RepeatBehavior.Forever,
+                    BeginTime = TimeSpan.FromMilliseconds(i * 90)
+                };
+                dot.Loaded += (_, _) => dot.BeginAnimation(UIElement.OpacityProperty, pulse);
+            }
 
             return canvas;
         }
 
-        private static void AddOrbitEllipse(Canvas target, double left, double top, double width, double height, byte r, byte g, byte b, double thickness)
+        private static Border CreateContainerBadge(string text, int index)
         {
-            var ellipse = new Ellipse
+            var badge = new Border
             {
-                Width = width,
-                Height = height,
-                Stroke = new SolidColorBrush(Color.FromArgb(150, r, g, b)),
-                StrokeThickness = thickness,
-                StrokeDashArray = new DoubleCollection { 8, 8 }
-            };
-            Canvas.SetLeft(ellipse, left);
-            Canvas.SetTop(ellipse, top);
-            target.Children.Add(ellipse);
-        }
-
-        private static void AddOrbitDots(Canvas target, double cx, double cy, double rx, double ry, int count, double size, Color color)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                double angle = 2 * Math.PI * i / count;
-                var dot = new Ellipse
+                Width = text.Length > 8 ? 126 : 104,
+                Height = 38,
+                CornerRadius = new CornerRadius(12),
+                Background = new LinearGradientBrush(Color.FromArgb(210, 8, 18, 42), Color.FromArgb(190, 25, 50, 95), 0),
+                BorderBrush = new LinearGradientBrush(Color.FromRgb(34, 211, 238), Color.FromRgb(168, 85, 247), 0),
+                BorderThickness = new Thickness(1.2),
+                Effect = new DropShadowEffect { Color = Color.FromRgb(34, 211, 238), BlurRadius = 14, ShadowDepth = 0, Opacity = 0.32 },
+                Child = new TextBlock
                 {
-                    Width = size,
-                    Height = size,
-                    Fill = new SolidColorBrush(Color.FromArgb(210, color.R, color.G, color.B)),
-                    Effect = new DropShadowEffect { Color = color, BlurRadius = 10, ShadowDepth = 0, Opacity = 0.8 }
+                    Text = text,
+                    Foreground = Brushes.White,
+                    FontSize = 13,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                },
+                RenderTransform = new ScaleTransform(1, 1),
+                RenderTransformOrigin = new Point(0.5, 0.5)
+            };
+
+            badge.Loaded += (_, _) =>
+            {
+                var pulseX = new DoubleAnimation
+                {
+                    From = 0.92,
+                    To = 1.06,
+                    Duration = TimeSpan.FromSeconds(1.9),
+                    AutoReverse = true,
+                    RepeatBehavior = RepeatBehavior.Forever,
+                    BeginTime = TimeSpan.FromMilliseconds(index * 180)
                 };
-                Canvas.SetLeft(dot, cx + rx * Math.Cos(angle) - size / 2);
-                Canvas.SetTop(dot, cy + ry * Math.Sin(angle) - size / 2);
-                target.Children.Add(dot);
-            }
+                var pulseY = new DoubleAnimation
+                {
+                    From = 0.92,
+                    To = 1.06,
+                    Duration = TimeSpan.FromSeconds(1.9),
+                    AutoReverse = true,
+                    RepeatBehavior = RepeatBehavior.Forever,
+                    BeginTime = TimeSpan.FromMilliseconds(index * 180)
+                };
+                var transform = (ScaleTransform)badge.RenderTransform;
+                transform.BeginAnimation(ScaleTransform.ScaleXProperty, pulseX);
+                transform.BeginAnimation(ScaleTransform.ScaleYProperty, pulseY);
+            };
+            return badge;
         }
 
         private void Password_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if (e.Key == Key.Enter || e.Key == Key.Return)
             {
+                e.Handled = true;
                 DialogResult = true;
                 Close();
             }
             else if (e.Key == Key.Escape)
             {
+                e.Handled = true;
                 DialogResult = false;
                 Close();
             }

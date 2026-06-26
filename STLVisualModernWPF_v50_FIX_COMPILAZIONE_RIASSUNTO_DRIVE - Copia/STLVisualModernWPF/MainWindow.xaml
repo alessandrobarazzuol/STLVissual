@@ -8,14 +8,14 @@
 
     <Grid Background="{StaticResource BgBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="230"/>
+            <ColumnDefinition Width="190"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!-- MENU SINISTRO -->
         <Border Grid.Column="0" Background="#181818" BorderBrush="#333333" BorderThickness="0,0,1,0">
-            <DockPanel Margin="14">
-                <TextBlock DockPanel.Dock="Top" Text="STL Visual" FontSize="25" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,8,0,18"/>
+            <DockPanel Margin="10">
+                <TextBlock DockPanel.Dock="Top" Text="STL Visual" FontSize="22" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,6,0,12"/>
                 <StackPanel DockPanel.Dock="Top">
                     <Button x:Name="BtnList" Style="{StaticResource MenuButton}" Content="std::list" Click="ContainerButton_Click"/>
                     <Button x:Name="BtnVector" Style="{StaticResource MenuButton}" Content="std::vector" Click="ContainerButton_Click"/>
@@ -25,7 +25,7 @@
                     <Button x:Name="BtnMap" Style="{StaticResource MenuButton}" Content="std::map" Click="ContainerButton_Click"/>
 
                     <!-- Pulsanti unificati richiesti: salvataggio completo + importazione completa -->
-                    <Separator Margin="0,14,0,10" Background="#333333"/>
+                    <Separator Margin="0,10,0,7" Background="#333333"/>
                     <Button x:Name="BtnSalvaTutto" Style="{StaticResource ActionButton}" Content="💾 SALVA" Click="SaveAll_Click" ToolTip="Salva guida, esercizi, riassunti e struttura cartelle; poi esporta su Google Drive/OAuth."/>
                     <Button x:Name="BtnImportaTutto" Style="{StaticResource ActionButton}" Content="📥 IMPORTA" Click="ImportAll_Click" ToolTip="Importa da Google Drive/OAuth o da file JSON guida, esercizi, riassunti e cartelle."/>
                 </StackPanel>
@@ -63,11 +63,11 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock x:Name="ContainerTitle" Grid.Column="0" Grid.Row="0" Text="std::list"
-                               FontSize="30" FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
+                               FontSize="27" FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
 
                     <UniformGrid x:Name="MethodsGrid" Grid.Column="0" Grid.Row="1" Columns="4" Margin="0,0,12,8"/>
 
-                    <WrapPanel Grid.Column="0" Grid.Row="2" VerticalAlignment="Top" Margin="0,0,12,8">
+                    <WrapPanel Grid.Column="0" Grid.Row="2" VerticalAlignment="Top" Margin="0,0,12,4">
                         <Button Style="{StaticResource GuideButton}" Content="Iteratori" Click="GuideIterators_Click"/>
                         <Button Style="{StaticResource GuideButton}" Content="Scorrimento" Click="GuideLoops_Click"/>
                         <Button Style="{StaticResource GuideButton}" Content="Accesso" Click="GuideAccess_Click"/>
@@ -79,7 +79,7 @@
                         
                     </WrapPanel>
 
-                    <Border Grid.Column="0" Grid.Row="2" Margin="0,58,12,0" Background="#202124" BorderBrush="#3E3E42" BorderThickness="1" CornerRadius="8" Padding="8">
+                    <Border Grid.Column="0" Grid.Row="2" Margin="0,46,12,0" Background="#202124" BorderBrush="#3E3E42" BorderThickness="1" CornerRadius="8" Padding="8">
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="Overload disponibili del metodo selezionato" Foreground="#D1D5DB" FontWeight="SemiBold" Margin="4,0,0,6"/>
                             <WrapPanel Margin="0,0,0,8">
