@@ -1,0 +1,79 @@
+name: Build STL Visual Setup
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-setup:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Find project folder
+        shell: pwsh
+        run: |
+          $bat = Get-ChildItem -Path . -Recurse -Filter "CREA_SETUP_COMPLETO_UN_CLICK.bat" | Select-Object -First 1
+          if (-not $bat) {
+            Write-Error "Non trovo CREA_SETUP_COMPLETO_UN_CLICK.bat nel repository."
+            exit 1
+          }
+
+          $iss = Get-ChildItem -Path . -Recurse -Filter "setup_inno.iss" | Select-Object -First 1
+          if (-not $iss) {
+            Write-Error "Non trovo setup_inno.iss nel repository."
+            exit 1
+          }
+
+          $projectDir = $bat.Directory.FullName
+          echo "PROJECT_DIR=$projectDir" >> $env:GITHUB_ENV
+          Write-Host "Cartella progetto trovata: $projectDir"
+          Write-Host "File Inno trovato: $($iss.FullName)"
+
+      - name: Run setup batch
+        shell: cmd
+        run: |
+          cd /d "%PROJECT_DIR%"
+          call CREA_SETUP_COMPLETO_UN_CLICK.bat
+
+      - name: Collect installer files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifact | Out-Null
+
+          $files = Get-ChildItem -Path . -Recurse -File | Where-Object {
+            $_.Extension -in ".exe", ".zip", ".msi" -and
+            ($_.FullName -match "Output|Setup|Installer|release|Release|dist|publish" -or $_.Name -match "setup|installer|STL|Visual")
+          }
+
+          if (-not $files) {
+            Write-Warning "Non ho trovato installer/zip automatici. Carico comunque eventuali file Output."
+            $files = Get-ChildItem -Path . -Recurse -File | Where-Object { $_.FullName -match "Output" }
+          }
+
+          foreach ($f in $files) {
+            Copy-Item $f.FullName -Destination (Join-Path artifact $f.Name) -Force
+            Write-Host "Aggiunto artifact: $($f.FullName)"
+          }
+
+          if ((Get-ChildItem artifact -File | Measure-Object).Count -eq 0) {
+            Write-Error "Compilazione completata ma non ho trovato nessun file installer da caricare."
+            exit 1
+          }
+
+      - name: Upload setup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: STLVisual_Setup
+          path: artifact/*
