@@ -1,5 +1,4 @@
 name: Build STL Visual Release
-run-name: auto Release ${{ github.run_number }}
 
 on:
   push:
@@ -59,14 +58,12 @@ jobs:
             Where-Object {
               $_.FullName -notmatch "\\.git\\" -and
               $_.FullName -notmatch "release-output" -and
-              $_.FullName -notmatch "\\obj\\" -and
               (
                 $_.Name -match "setup|installer|install|STL|Visual" -or
                 $_.DirectoryName -match "Output|Installer|Setup|release|Release"
               )
             } |
-            Sort-Object LastWriteTime -Descending |
-            Select-Object -First 5
+            Sort-Object LastWriteTime -Descending
 
           if (-not $files -or $files.Count -eq 0) {
             Write-Error "Nessun installer trovato dopo la compilazione."
@@ -74,50 +71,34 @@ jobs:
           }
 
           foreach ($f in $files) {
-            $safeName = $f.Name -replace '[^a-zA-Z0-9_.-]', '_'
-            $dest = Join-Path "release-output" $safeName
-            Copy-Item $f.FullName -Destination $dest -Force
-            Write-Host "Aggiunto alla release: $($f.FullName) -> $dest"
+            Copy-Item $f.FullName -Destination "release-output" -Force
+            Write-Host "Aggiunto alla release: $($f.FullName)"
           }
 
-          Get-ChildItem release-output | Format-Table Name, Length, LastWriteTime
+          Get-ChildItem release-output
 
-      - name: Upload setup artifact
+      - name: Upload setup artifact backup
         uses: actions/upload-artifact@v4
         with:
           name: STLVisual_Setup
           path: release-output/*
           if-no-files-found: error
 
+      - name: Create unique release tag
+        shell: pwsh
+        run: |
+          $shortSha = "${{ github.sha }}".Substring(0, 7)
+          $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+          $tag = "release-$stamp-${{ github.run_number }}-${{ github.run_attempt }}-$shortSha"
+          "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "Release tag creato: $tag"
+
       - name: Create GitHub Release with installer
         shell: pwsh
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $tag = "auto-${{ github.run_number }}"
-          $title = "STL Visual auto ${{ github.run_number }}"
-          $notes = @"
-          Release automatica generata da GitHub Actions.
-
-          Commit: ${{ github.sha }}
-          Branch: ${{ github.ref_name }}
-          "@
-
-          $assets = Get-ChildItem -Path "release-output" -File
-          if (-not $assets -or $assets.Count -eq 0) {
-            Write-Error "Nessun file in release-output da pubblicare nella Release."
-            exit 1
-          }
-
-          Write-Host "Creo Release: $tag"
-          gh release create $tag --repo $env:GITHUB_REPOSITORY --title $title --notes $notes --latest
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-          foreach ($asset in $assets) {
-            Write-Host "Carico asset nella Release: $($asset.FullName)"
-            gh release upload $tag $asset.FullName --repo $env:GITHUB_REPOSITORY --clobber
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
-
-          Write-Host "Release creata correttamente:"
-          gh release view $tag --repo $env:GITHUB_REPOSITORY --web=false
+          gh release create "$env:RELEASE_TAG" release-output/* `
+            --title "STL Visual $env:RELEASE_TAG" `
+            --notes "Release automatica generata da GitHub Actions.`n`nCommit: ${{ github.sha }}`nBranch: ${{ github.ref_name }}" `
+            --latest
