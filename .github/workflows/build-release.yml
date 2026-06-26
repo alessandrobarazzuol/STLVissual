@@ -27,68 +27,67 @@ jobs:
       - name: Find project folder
         shell: pwsh
         run: |
-          $bat = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter "CREA_SETUP_COMPLETO_UN_CLICK.bat" | Select-Object -First 1
-          if (-not $bat) { throw "Non trovo CREA_SETUP_COMPLETO_UN_CLICK.bat nel repository." }
+          $bat = Get-ChildItem -Path . -Recurse -Filter "CREA_SETUP_COMPLETO_UN_CLICK.bat" | Select-Object -First 1
+          if (-not $bat) {
+            Write-Error "Non trovo CREA_SETUP_COMPLETO_UN_CLICK.bat nel repository."
+            exit 1
+          }
 
-          $iss = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter "setup_inno.iss" | Select-Object -First 1
-          if (-not $iss) { throw "Non trovo setup_inno.iss nel repository." }
+          $iss = Get-ChildItem -Path $bat.Directory.FullName -Filter "setup_inno.iss" | Select-Object -First 1
+          if (-not $iss) {
+            Write-Error "Trovo il BAT, ma nella stessa cartella non trovo setup_inno.iss."
+            exit 1
+          }
 
           "PROJECT_DIR=$($bat.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "BAT_PATH=$($bat.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "ISS_PATH=$($iss.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-          Write-Host "Cartella progetto: $($bat.Directory.FullName)"
-          Write-Host "BAT trovato: $($bat.FullName)"
-          Write-Host "ISS trovato: $($iss.FullName)"
+          Write-Host "Cartella progetto trovata: $($bat.Directory.FullName)"
 
       - name: Run setup batch
         shell: cmd
-        working-directory: ${{ env.PROJECT_DIR }}
-        run: call "CREA_SETUP_COMPLETO_UN_CLICK.bat"
+        run: |
+          cd /d "%PROJECT_DIR%"
+          call CREA_SETUP_COMPLETO_UN_CLICK.bat
 
       - name: Collect installer files
         shell: pwsh
         run: |
-          $dist = Join-Path $env:GITHUB_WORKSPACE "release_files"
-          New-Item -ItemType Directory -Force -Path $dist | Out-Null
+          New-Item -ItemType Directory -Force -Path release-output | Out-Null
 
-          $files = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Include *.exe,*.msi,*.zip |
+          $files = Get-ChildItem -Path . -Recurse -Include *.exe,*.zip -File |
             Where-Object {
-              $_.FullName -notmatch '\\.git\\' -and
-              $_.FullName -notmatch 'release_files' -and
-              ($_.Name -match 'setup|install|STL|Visual|zip' -or $_.Extension -eq '.msi')
+              $_.FullName -notmatch "\\.git\\" -and
+              $_.FullName -notmatch "release-output" -and
+              (
+                $_.Name -match "setup|installer|install|STL|Visual" -or
+                $_.DirectoryName -match "Output|Installer|Setup|release|Release"
+              )
             } |
             Sort-Object LastWriteTime -Descending
 
           if (-not $files -or $files.Count -eq 0) {
-            throw "Build riuscita, ma non trovo file installer (.exe/.msi/.zip) da pubblicare. Controlla dove il BAT salva il setup."
+            Write-Error "Nessun installer trovato dopo la compilazione."
+            exit 1
           }
 
-          foreach ($f in $files | Select-Object -First 10) {
-            Copy-Item $f.FullName -Destination $dist -Force
-            Write-Host "Copiato: $($f.FullName)"
+          foreach ($f in $files) {
+            Copy-Item $f.FullName -Destination "release-output" -Force
+            Write-Host "Aggiunto alla release: $($f.FullName)"
           }
 
-          $tag = "build-" + (Get-Date -Format "yyyyMMdd-HHmmss")
-          "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append
-          "RELEASE_NAME=STL Visual $tag" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Get-ChildItem release-output
 
-      - name: Upload setup artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: STLVisual_Setup
-          path: release_files/*
-
-      - name: Create GitHub Release
+      - name: Create automatic GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.RELEASE_TAG }}
-          name: ${{ env.RELEASE_NAME }}
+          tag_name: build-${{ github.run_number }}
+          name: STL Visual build ${{ github.run_number }}
           body: |
             Release automatica generata da GitHub Actions.
 
             Commit: ${{ github.sha }}
             Branch: ${{ github.ref_name }}
-          files: release_files/*
+          files: release-output/*
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
