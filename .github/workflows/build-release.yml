@@ -63,7 +63,8 @@ jobs:
                 $_.DirectoryName -match "Output|Installer|Setup|release|Release"
               )
             } |
-            Sort-Object LastWriteTime -Descending
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 5
 
           if (-not $files -or $files.Count -eq 0) {
             Write-Error "Nessun installer trovato dopo la compilazione."
@@ -77,28 +78,27 @@ jobs:
 
           Get-ChildItem release-output
 
-      - name: Upload setup artifact backup
+      - name: Upload setup artifact
         uses: actions/upload-artifact@v4
         with:
           name: STLVisual_Setup
           path: release-output/*
-          if-no-files-found: error
-
-      - name: Create unique release tag
-        shell: pwsh
-        run: |
-          $shortSha = "${{ github.sha }}".Substring(0, 7)
-          $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
-          $tag = "release-$stamp-${{ github.run_number }}-${{ github.run_attempt }}-$shortSha"
-          "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append
-          Write-Host "Release tag creato: $tag"
 
       - name: Create GitHub Release with installer
         shell: pwsh
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$env:RELEASE_TAG" release-output/* `
-            --title "STL Visual $env:RELEASE_TAG" `
+          $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+          $shortSha = "${{ github.sha }}".Substring(0,7)
+          $tag = "release-$stamp-$shortSha"
+          $title = "STL Visual $tag"
+
+          Write-Host "Creo Release pubblica: $tag"
+
+          gh release create $tag "release-output/*" `
+            --title "$title" `
             --notes "Release automatica generata da GitHub Actions.`n`nCommit: ${{ github.sha }}`nBranch: ${{ github.ref_name }}" `
             --latest
+
+          Write-Host "Release creata e pubblicata: $tag"
