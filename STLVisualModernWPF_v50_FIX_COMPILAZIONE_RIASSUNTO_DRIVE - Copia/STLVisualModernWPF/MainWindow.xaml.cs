@@ -190,7 +190,8 @@ namespace STLVisualModernWPF
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                SaveInstalledGitHubReleaseState(release, asset);
+                // Non salvo più la release come installata prima dell'installazione:
+                // sarà la nuova versione installata a contenere stlvisual_release_tag.txt.
                 LaunchInstallerAndCloseApp(downloadPath);
                 return;
             }
@@ -212,28 +213,41 @@ namespace STLVisualModernWPF
 
         private bool IsGitHubReleaseAlreadyInstalled(GitHubReleaseInfo release, GitHubReleaseAsset asset)
         {
-            var state = LoadGitHubUpdateState();
             string? releaseTag = NormalizeText(release.TagName);
-            string? assetName = NormalizeText(asset.Name);
+            string? installedBuildTag = NormalizeText(ReadInstalledGitHubReleaseTag());
 
+            // Confronto realmente affidabile: ogni build GitHub scrive un file
+            // stlvisual_release_tag.txt dentro la cartella installata del programma.
+            // Se il tag locale coincide con il tag latest di GitHub, allora siamo aggiornati.
             if (!string.IsNullOrWhiteSpace(releaseTag) &&
-                string.Equals(NormalizeText(state?.InstalledTagName), releaseTag, StringComparison.OrdinalIgnoreCase))
+                !string.IsNullOrWhiteSpace(installedBuildTag) &&
+                string.Equals(installedBuildTag, releaseTag, StringComparison.OrdinalIgnoreCase))
                 return true;
-
-            // Non confrontiamo più solo il nome dell'asset: spesso il setup viene pubblicato
-            // con lo stesso nome anche quando la Release è nuova. Il confronto principale
-            // deve essere il tag della Release installata.
 
             Version? remoteVersion = ExtractVersionFromRelease(release, asset);
             Version? localVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
+            // Fallback solo se GitHub pubblica una release con versione numerica tipo 5.3.6.
+            // Non usiamo più il vecchio file github_update_state.json perché veniva salvato
+            // al momento del download e poteva far credere installata una versione non ancora installata.
             if (remoteVersion != null && localVersion != null && localVersion >= remoteVersion)
                 return true;
 
-            // Non confrontiamo più la data del file EXE locale con la data della Release:
-            // durante installazioni manuali o build GitHub il timestamp del file può risultare
-            // più recente della Release e nascondere aggiornamenti reali.
             return false;
+        }
+
+        private static string? ReadInstalledGitHubReleaseTag()
+        {
+            try
+            {
+                string tagFile = System.IO.Path.Combine(AppContext.BaseDirectory, "stlvisual_release_tag.txt");
+                if (!File.Exists(tagFile)) return null;
+                return File.ReadAllText(tagFile, Encoding.UTF8).Trim();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void SaveInstalledGitHubReleaseState(GitHubReleaseInfo release, GitHubReleaseAsset asset)
@@ -3689,6 +3703,59 @@ Per scorrerla devi copiarla e fare pop() sulla copia.",
             catch (Exception ex)
             {
                 MessageBox.Show("Errore durante la preparazione del nuovo esercizio:\n" + ex.Message, "Nuovo esercizio", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private async void SaveExerciseAsComplete_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Salva anche la guida/metodo attualmente modificata, come il pulsante SALVA laterale.
+                if (!string.IsNullOrWhiteSpace(currentGuideKey))
+                    customGuides[currentGuideKey] = GuideTextBox.Text;
+                SaveGuides();
+                SaveSummaries();
+
+                Directory.CreateDirectory(ExercisesFolder);
+
+                var dlg = new SaveFileDialog
+                {
+                    Filter = "Esercizio STL salvato|*.json|All files|*.*",
+                    InitialDirectory = ExercisesFolder,
+                    FileName = "esercizio_stl_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".json",
+                    Title = "Scegli dove salvare il nuovo esercizio"
+                };
+
+                if (dlg.ShowDialog() != true) return;
+
+                var data = new SavedExercise
+                {
+                    Consegna = ExerciseTextBox.Text,
+                    Soluzione = GetGeneratedCode(),
+                    RiassuntiContenitori = new Dictionary<string, SummaryNote>(containerSummaries),
+                    SalvatoIl = DateTime.Now
+                };
+
+                File.WriteAllText(dlg.FileName, JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
+                currentLoadedExerciseFile = dlg.FileName;
+
+                RefreshSavedExercisesList();
+
+                // Come SALVA laterale: esporta database/struttura su Drive locale e OAuth, se configurato.
+                string driveInfo = TryExportDatabaseToGoogleDriveFolder(false);
+                driveInfo += await TryUploadDatabaseToGoogleDriveOAuthAsync(false);
+
+                var backup = BuildBackupDatabase();
+                MessageBox.Show(
+                    $"ESERCIZIO SALVATO.\n\nFile:\n{dlg.FileName}\n\nGuide salvate: {backup.Guide.Count}\nEsercizi salvati: {backup.Esercizi.Count}\nCartelle salvate: {backup.Cartelle.Count}\nRiassunti salvati: {backup.Riassunti.Count}" + driveInfo,
+                    "Salva esercizio",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Errore durante il salvataggio dell'esercizio:\n" + ex.Message, "Salva esercizio", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

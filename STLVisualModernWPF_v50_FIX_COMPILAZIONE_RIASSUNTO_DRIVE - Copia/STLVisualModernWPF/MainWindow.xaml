@@ -147,7 +147,7 @@
                             <Button Style="{StaticResource ActionButton}" Content="Genera con AI" Click="GenerateCpp_Click" ToolTip="Genera il codice C++ usando l'AI"/>
                             <Button Content="➕ Nuovo esercizio" Click="NewExercise_Click" ToolTip="Svuota consegna e soluzione per scrivere un nuovo esercizio"
                                     Background="#DC2626" Foreground="White" FontWeight="Bold" Padding="12,7"/>
-                            <Button Content="💾 Salva" Click="SaveAll_Click" ToolTip="Salva esercizio, guida, riassunti e struttura come il pulsante SALVA del menu sinistro"
+                            <Button Content="💾 Salva esercizio" Click="SaveExerciseAsComplete_Click" ToolTip="Salva esercizio scegliendo cartella e nome; salva anche guide, riassunti e struttura come il pulsante SALVA"
                                     Background="#2563EB" Foreground="White" FontWeight="Bold" Padding="12,7"/>
                             <Button Content="📁 Apri cartella esercizi" Click="OpenExercisesFolder_Click"/>
                             <Button Content="📂 Carica esercizio" Click="LoadExercise_Click"/>

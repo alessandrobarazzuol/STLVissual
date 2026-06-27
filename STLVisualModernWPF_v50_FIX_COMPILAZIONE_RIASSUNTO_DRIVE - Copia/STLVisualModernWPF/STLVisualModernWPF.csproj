@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Content Include="app.ico" />
+    <Content Include="stlvisual_release_tag.txt" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
     <Resource Include="Assets\login_background.jpeg" />
   </ItemGroup>
 

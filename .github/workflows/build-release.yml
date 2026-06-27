@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  actions: read
 
 jobs:
   build-release:
@@ -43,6 +42,16 @@ jobs:
           "PROJECT_DIR=$($bat.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
           Write-Host "Cartella progetto trovata: $($bat.Directory.FullName)"
 
+      - name: Write release tag into program
+        shell: pwsh
+        run: |
+          $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+          $short = "${{ github.sha }}".Substring(0,7)
+          $tag = "release-$stamp-$short"
+          "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Set-Content -Path (Join-Path $env:PROJECT_DIR "stlvisual_release_tag.txt") -Value $tag -Encoding UTF8
+          Write-Host "Tag scritto nel programma: $tag"
+
       - name: Run setup batch
         shell: cmd
         run: |
@@ -63,8 +72,7 @@ jobs:
                 $_.DirectoryName -match "Output|Installer|Setup|release|Release"
               )
             } |
-            Sort-Object LastWriteTime -Descending |
-            Select-Object -First 5
+            Sort-Object LastWriteTime -Descending
 
           if (-not $files -or $files.Count -eq 0) {
             Write-Error "Nessun installer trovato dopo la compilazione."
@@ -87,18 +95,14 @@ jobs:
       - name: Create GitHub Release with installer
         shell: pwsh
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
-          $shortSha = "${{ github.sha }}".Substring(0,7)
-          $tag = "release-$stamp-$shortSha"
-          $title = "STL Visual $tag"
-
+          $tag = $env:RELEASE_TAG
           Write-Host "Creo Release pubblica: $tag"
 
-          gh release create $tag "release-output/*" `
-            --title "$title" `
-            --notes "Release automatica generata da GitHub Actions.`n`nCommit: ${{ github.sha }}`nBranch: ${{ github.ref_name }}" `
-            --latest
+          gh release create $tag release-output/* `
+            --repo "${{ github.repository }}" `
+            --title "STL Visual $tag" `
+            --notes "Release automatica generata da GitHub Actions.`n`nCommit: ${{ github.sha }}`nBranch: ${{ github.ref_name }}"
 
           Write-Host "Release creata e pubblicata: $tag"
