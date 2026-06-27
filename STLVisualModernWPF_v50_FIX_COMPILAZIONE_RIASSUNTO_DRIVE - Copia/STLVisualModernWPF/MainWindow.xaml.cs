@@ -230,40 +230,10 @@ namespace STLVisualModernWPF
             if (remoteVersion != null && localVersion != null && localVersion >= remoteVersion)
                 return true;
 
-            // Se l'utente ha installato manualmente l'ultima Release scaricata da GitHub,
-            // il file di stato potrebbe non essere stato aggiornato. In quel caso confrontiamo
-            // la data dell'eseguibile installato con la data di pubblicazione della Release.
-            if (IsCurrentExecutableAtLeastAsNewAsRelease(release))
-                return true;
-
+            // Non confrontiamo più la data del file EXE locale con la data della Release:
+            // durante installazioni manuali o build GitHub il timestamp del file può risultare
+            // più recente della Release e nascondere aggiornamenti reali.
             return false;
-        }
-
-        private static bool IsCurrentExecutableAtLeastAsNewAsRelease(GitHubReleaseInfo release)
-        {
-            try
-            {
-                if (release.PublishedAt == null)
-                    return false;
-
-                string? exePath = Environment.ProcessPath;
-                if (string.IsNullOrWhiteSpace(exePath))
-                    exePath = Assembly.GetExecutingAssembly().Location;
-
-                if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
-                    return false;
-
-                DateTime exeWriteUtc = File.GetLastWriteTimeUtc(exePath);
-                DateTime releaseUtc = release.PublishedAt.Value.UtcDateTime;
-
-                // Tolleranza: la build può avere un timestamp leggermente precedente
-                // rispetto alla pubblicazione effettiva della Release.
-                return exeWriteUtc >= releaseUtc.AddMinutes(-45);
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private void SaveInstalledGitHubReleaseState(GitHubReleaseInfo release, GitHubReleaseAsset asset)
@@ -5053,6 +5023,19 @@ int main() {
             await OpenDrivePdfAsync(pdf);
         }
 
+        private async Task EnsurePdfViewerReadyAsync()
+        {
+            try
+            {
+                if (PdfViewer.CoreWebView2 == null)
+                    await PdfViewer.EnsureCoreWebView2Async();
+            }
+            catch
+            {
+                // Se WebView2 non riesce a inizializzarsi, il pulsante Apri esterno resta disponibile.
+            }
+        }
+
         private async Task OpenDrivePdfAsync(DrivePdfItem pdf)
         {
             try
@@ -5077,9 +5060,14 @@ int main() {
 
                 currentPdfLocalPath = localPath;
                 PdfSelectedText.Text = pdf.Name + FormatPdfSize(pdf.Size);
-                PdfStatusText.Text = "PDF caricato. Se non viene visualizzato nel riquadro, usa 'Apri esterno'.";
+                PdfStatusText.Text = "PDF caricato nel riquadro interno. Se non viene visualizzato, usa 'Apri esterno'.";
 
-                PdfViewer.Navigate(new Uri(localPath));
+                await EnsurePdfViewerReadyAsync();
+                var pdfUri = new Uri(localPath);
+                if (PdfViewer.CoreWebView2 != null)
+                    PdfViewer.CoreWebView2.Navigate(pdfUri.AbsoluteUri);
+                else
+                    PdfViewer.Source = pdfUri;
             }
             catch (Exception ex)
             {
