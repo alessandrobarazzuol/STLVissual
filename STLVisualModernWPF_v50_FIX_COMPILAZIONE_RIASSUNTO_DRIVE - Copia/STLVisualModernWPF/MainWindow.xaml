@@ -317,6 +317,46 @@
                 </Grid>
             </TabItem>
 
+            <TabItem Header="PDF Drive">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Column="0" Grid.RowSpan="3" Background="#111827" BorderBrush="#334155" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,10,0">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="PDF su Google Drive" Foreground="White" FontSize="18" FontWeight="Bold" Margin="0,0,0,8"/>
+                            <TextBlock DockPanel.Dock="Top" Text="La scheda crea/legge la cartella PDF nel Drive OAuth e mostra sottocartelle e file PDF." Foreground="#CBD5E1" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <Button DockPanel.Dock="Top" Content="🔄 Aggiorna PDF Drive" Style="{StaticResource ActionButton}" Click="RefreshDrivePdfTree_Click" Margin="0,0,0,10"/>
+                            <TreeView x:Name="DrivePdfTree" SelectedItemChanged="DrivePdfTree_SelectedItemChanged"
+                                      Background="#0B1220" Foreground="White" BorderBrush="#334155"
+                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Grid.Row="0" Background="#111827" BorderBrush="#334155" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,8">
+                        <DockPanel>
+                            <TextBlock x:Name="PdfSelectedText" Text="Seleziona un PDF dall'albero." Foreground="#E5E7EB" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <Button DockPanel.Dock="Right" Content="Apri esterno" Click="OpenCurrentPdfExternal_Click" Margin="10,0,0,0" Padding="10,5"/>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Grid.Row="1" Background="#0F172A" BorderBrush="#334155" BorderThickness="1" CornerRadius="8" Padding="6">
+                        <WebBrowser x:Name="PdfViewer"/>
+                    </Border>
+
+                    <TextBlock x:Name="PdfStatusText" Grid.Column="1" Grid.Row="2" Text="Pronto." Foreground="#94A3B8" FontSize="12" Margin="0,8,0,0"/>
+                </Grid>
+            </TabItem>
+
+
         </TabControl>
     </Grid>
 </Window>

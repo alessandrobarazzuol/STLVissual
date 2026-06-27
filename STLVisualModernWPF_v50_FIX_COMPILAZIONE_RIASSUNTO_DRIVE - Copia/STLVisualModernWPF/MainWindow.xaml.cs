@@ -47,12 +47,14 @@ namespace STLVisualModernWPF
         private readonly string GoogleTokenFolder;
         private const string GoogleDriveBackupFolderName = "STLVisualModernWPF_Alessandro_Barazzoli";
         private const string GoogleDriveBackupFileName = "guide_ed_esercizi_STLVisualModernWPF.json";
+        private const string GoogleDrivePdfFolderName = "PDF";
 
         private string current = "list";
         private int nextValue = 1;
         private int nextKey = 1;
         private string currentGuideKey = "list:Panoramica";
         private string? currentLoadedExerciseFile = null;
+        private string? currentPdfLocalPath = null;
         private DispatcherTimer? driveAutoSyncTimer;
         private bool driveAutoSyncRunning = false;
         private DateTime lastDriveAutoImportUtc = DateTime.MinValue;
@@ -1913,7 +1915,7 @@ namespace STLVisualModernWPF
                 using var stream = new FileStream(GoogleCredentialsFile, FileMode.Open, FileAccess.Read);
                 var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.FromStream(stream).Secrets,
-                    new[] { DriveService.Scope.DriveFile },
+                    new[] { DriveService.Scope.Drive },
                     "alessandro.barazzoli@liceoconnigliano.it",
                     System.Threading.CancellationToken.None,
                     new FileDataStore(GoogleTokenFolder, true));
@@ -4865,6 +4867,199 @@ int main() {
             return d;
         }
 
+        private sealed class DrivePdfItem
+        {
+            public string Id { get; init; } = "";
+            public string Name { get; init; } = "";
+            public long? Size { get; init; }
+            public string? WebViewLink { get; init; }
+        }
+
+        private async void RefreshDrivePdfTree_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                PdfStatusText.Text = "Connessione a Google Drive...";
+                DrivePdfTree.Items.Clear();
+                currentPdfLocalPath = null;
+                PdfSelectedText.Text = "Seleziona un PDF dall'albero.";
+
+                var service = await CreateGoogleDriveServiceAsync(true);
+                if (service == null)
+                {
+                    PdfStatusText.Text = "Login Google Drive non disponibile.";
+                    return;
+                }
+
+                string? pdfFolderId = await FindOrCreateDrivePdfFolderAsync(service);
+                if (string.IsNullOrWhiteSpace(pdfFolderId))
+                {
+                    PdfStatusText.Text = "Impossibile trovare o creare la cartella PDF nel Drive.";
+                    return;
+                }
+
+                var rootItem = new TreeViewItem
+                {
+                    Header = "📁 PDF",
+                    Tag = pdfFolderId,
+                    IsExpanded = true
+                };
+
+                DrivePdfTree.Items.Add(rootItem);
+                int count = await LoadDrivePdfChildrenAsync(service, pdfFolderId, rootItem);
+
+                PdfStatusText.Text = count == 0
+                    ? "Cartella PDF pronta, ma non ci sono ancora PDF. Carica i file nel Drive e premi Aggiorna."
+                    : $"Caricati {count} elementi dalla cartella PDF.";
+            }
+            catch (Exception ex)
+            {
+                PdfStatusText.Text = "Errore PDF Drive: " + ex.Message;
+                MessageBox.Show("Errore durante la lettura dei PDF da Google Drive:\n" + ex.Message,
+                    "PDF Drive", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task<string?> FindOrCreateDrivePdfFolderAsync(DriveService service)
+        {
+            string? folderId = await FindDriveFileIdAsync(service, GoogleDrivePdfFolderName, null, "application/vnd.google-apps.folder");
+            if (!string.IsNullOrWhiteSpace(folderId))
+                return folderId;
+
+            var folder = new DriveFile
+            {
+                Name = GoogleDrivePdfFolderName,
+                MimeType = "application/vnd.google-apps.folder"
+            };
+
+            var create = service.Files.Create(folder);
+            create.Fields = "id";
+            var created = await create.ExecuteAsync();
+            return created.Id;
+        }
+
+        private async Task<int> LoadDrivePdfChildrenAsync(DriveService service, string parentId, ItemsControl parentItem)
+        {
+            var request = service.Files.List();
+            request.Q = $"trashed = false and '{parentId}' in parents";
+            request.Fields = "files(id, name, mimeType, size, modifiedTime, webViewLink)";
+            request.PageSize = 1000;
+            request.OrderBy = "folder,name";
+
+            var result = await request.ExecuteAsync();
+            int count = 0;
+
+            foreach (var file in (result.Files ?? new List<DriveFile>())
+                         .OrderByDescending(f => f.MimeType == "application/vnd.google-apps.folder")
+                         .ThenBy(f => f.Name))
+            {
+                if (file.MimeType == "application/vnd.google-apps.folder")
+                {
+                    var folderItem = new TreeViewItem
+                    {
+                        Header = "📁 " + file.Name,
+                        Tag = file.Id,
+                        IsExpanded = false
+                    };
+
+                    parentItem.Items.Add(folderItem);
+                    count++;
+                    count += await LoadDrivePdfChildrenAsync(service, file.Id, folderItem);
+                }
+                else if (file.MimeType == "application/pdf" || file.Name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+                {
+                    var pdf = new DrivePdfItem
+                    {
+                        Id = file.Id,
+                        Name = file.Name,
+                        Size = file.Size,
+                        WebViewLink = file.WebViewLink
+                    };
+
+                    parentItem.Items.Add(new TreeViewItem
+                    {
+                        Header = "📄 " + file.Name + FormatPdfSize(file.Size),
+                        Tag = pdf
+                    });
+
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static string FormatPdfSize(long? bytes)
+        {
+            if (bytes == null || bytes <= 0) return "";
+            double mb = bytes.Value / 1024d / 1024d;
+            return $"  ({mb:0.0} MB)";
+        }
+
+        private async void DrivePdfTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (DrivePdfTree.SelectedItem is not TreeViewItem item || item.Tag is not DrivePdfItem pdf)
+                return;
+
+            await OpenDrivePdfAsync(pdf);
+        }
+
+        private async Task OpenDrivePdfAsync(DrivePdfItem pdf)
+        {
+            try
+            {
+                PdfSelectedText.Text = "Scarico: " + pdf.Name + FormatPdfSize(pdf.Size);
+                PdfStatusText.Text = "Download PDF da Google Drive...";
+
+                var service = await CreateGoogleDriveServiceAsync(true);
+                if (service == null) return;
+
+                string cacheFolder = System.IO.Path.Combine(AppFolder, "PdfCache");
+                Directory.CreateDirectory(cacheFolder);
+
+                string safeName = MakeSafeFileName(pdf.Name);
+                string localPath = System.IO.Path.Combine(cacheFolder, $"{pdf.Id}_{safeName}");
+
+                using (var output = new FileStream(localPath, FileMode.Create, FileAccess.Write))
+                {
+                    var get = service.Files.Get(pdf.Id);
+                    await get.DownloadAsync(output);
+                }
+
+                currentPdfLocalPath = localPath;
+                PdfSelectedText.Text = pdf.Name + FormatPdfSize(pdf.Size);
+                PdfStatusText.Text = "PDF caricato. Se non viene visualizzato nel riquadro, usa 'Apri esterno'.";
+
+                PdfViewer.Navigate(new Uri(localPath));
+            }
+            catch (Exception ex)
+            {
+                PdfStatusText.Text = "Errore apertura PDF: " + ex.Message;
+                MessageBox.Show("Errore durante il download/apertura del PDF:\n" + ex.Message,
+                    "PDF Drive", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OpenCurrentPdfExternal_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(currentPdfLocalPath) || !File.Exists(currentPdfLocalPath))
+            {
+                MessageBox.Show("Seleziona prima un PDF dall'albero.", "PDF Drive",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo(currentPdfLocalPath) { UseShellExecute = true });
+        }
+
+        private static string MakeSafeFileName(string name)
+        {
+            foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+                name = name.Replace(c, '_');
+            return string.IsNullOrWhiteSpace(name) ? "documento.pdf" : name;
+        }
+
+
     }
 
     public class TreeNodeDemo
@@ -5038,14 +5233,55 @@ int main() {
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Stretch,
                 IsHitTestVisible = false,
-                Opacity = 0.96
+                Opacity = 0.97
             };
+
+            var random = new Random(42);
+            string[] symbols =
+            {
+                "0", "1", "<", ">", "{", "}", ";", "*", "&",
+                "L", "V", "S", "Q", "M", "push", "pop", "map", "list", "queue", "stack"
+            };
+
+            for (int col = 0; col < 34; col++)
+            {
+                var column = new TextBlock
+                {
+                    Text = BuildMatrixColumn(symbols, random, 18 + random.Next(0, 10)),
+                    FontFamily = new FontFamily("Consolas"),
+                    FontSize = 11 + random.Next(0, 4),
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = new SolidColorBrush(Color.FromArgb(180, 80, 255, 120)),
+                    Effect = new DropShadowEffect
+                    {
+                        Color = Color.FromRgb(0, 255, 80),
+                        BlurRadius = 10,
+                        ShadowDepth = 0,
+                        Opacity = 0.45
+                    }
+                };
+
+                Canvas.SetLeft(column, 8 + col * 22);
+                Canvas.SetTop(column, -360 - random.Next(0, 260));
+                canvas.Children.Add(column);
+
+                var fall = new DoubleAnimation
+                {
+                    From = -420 - random.Next(0, 220),
+                    To = 520 + random.Next(0, 260),
+                    Duration = TimeSpan.FromSeconds(4.2 + random.NextDouble() * 4.5),
+                    BeginTime = TimeSpan.FromMilliseconds(random.Next(0, 1800)),
+                    RepeatBehavior = RepeatBehavior.Forever
+                };
+
+                column.Loaded += (_, _) => column.BeginAnimation(Canvas.TopProperty, fall);
+            }
 
             string[] names = { "std::list", "std::vector", "std::set", "std::stack", "std::queue", "std::map" };
             double[,] positions =
             {
-                { 26, 26 }, { 548, 26 }, { 34, 344 },
-                { 552, 344 }, { 86, 86 }, { 506, 286 }
+                { 24, 22 }, { 546, 22 }, { 32, 344 },
+                { 552, 344 }, { 82, 88 }, { 500, 286 }
             };
 
             for (int i = 0; i < names.Length; i++)
@@ -5056,49 +5292,36 @@ int main() {
                 canvas.Children.Add(badge);
             }
 
-            for (int i = 0; i < 18; i++)
-            {
-                var dot = new Ellipse
-                {
-                    Width = 4 + (i % 3),
-                    Height = 4 + (i % 3),
-                    Fill = new SolidColorBrush(Color.FromArgb(130, 56, 189, 248)),
-                    Effect = new DropShadowEffect { Color = Color.FromRgb(56, 189, 248), BlurRadius = 10, ShadowDepth = 0, Opacity = 0.7 }
-                };
-                Canvas.SetLeft(dot, 120 + (i * 31) % 520);
-                Canvas.SetTop(dot, 70 + (i * 47) % 280);
-                canvas.Children.Add(dot);
-
-                var pulse = new DoubleAnimation
-                {
-                    From = 0.25,
-                    To = 1.0,
-                    Duration = TimeSpan.FromSeconds(1.4 + i * 0.05),
-                    AutoReverse = true,
-                    RepeatBehavior = RepeatBehavior.Forever,
-                    BeginTime = TimeSpan.FromMilliseconds(i * 90)
-                };
-                dot.Loaded += (_, _) => dot.BeginAnimation(UIElement.OpacityProperty, pulse);
-            }
-
             return canvas;
+        }
+
+        private static string BuildMatrixColumn(string[] symbols, Random random, int rows)
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < rows; i++)
+            {
+                if (i > 0) sb.AppendLine();
+                sb.Append(symbols[random.Next(symbols.Length)]);
+            }
+            return sb.ToString();
         }
 
         private static Border CreateContainerBadge(string text, int index)
         {
             var badge = new Border
             {
-                Width = text.Length > 8 ? 126 : 104,
+                Width = text.Length > 8 ? 128 : 106,
                 Height = 38,
-                CornerRadius = new CornerRadius(12),
-                Background = new LinearGradientBrush(Color.FromArgb(210, 8, 18, 42), Color.FromArgb(190, 25, 50, 95), 0),
-                BorderBrush = new LinearGradientBrush(Color.FromRgb(34, 211, 238), Color.FromRgb(168, 85, 247), 0),
-                BorderThickness = new Thickness(1.2),
-                Effect = new DropShadowEffect { Color = Color.FromRgb(34, 211, 238), BlurRadius = 14, ShadowDepth = 0, Opacity = 0.32 },
+                CornerRadius = new CornerRadius(11),
+                Background = new LinearGradientBrush(Color.FromArgb(225, 0, 22, 8), Color.FromArgb(205, 0, 55, 20), 0),
+                BorderBrush = new LinearGradientBrush(Color.FromRgb(0, 255, 100), Color.FromRgb(30, 160, 70), 0),
+                BorderThickness = new Thickness(1.3),
+                Effect = new DropShadowEffect { Color = Color.FromRgb(0, 255, 100), BlurRadius = 18, ShadowDepth = 0, Opacity = 0.48 },
                 Child = new TextBlock
                 {
                     Text = text,
-                    Foreground = Brushes.White,
+                    Foreground = new SolidColorBrush(Color.FromRgb(210, 255, 220)),
+                    FontFamily = new FontFamily("Consolas"),
                     FontSize = 13,
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Center,
@@ -5112,21 +5335,21 @@ int main() {
             {
                 var pulseX = new DoubleAnimation
                 {
-                    From = 0.92,
-                    To = 1.06,
-                    Duration = TimeSpan.FromSeconds(1.9),
+                    From = 0.94,
+                    To = 1.04,
+                    Duration = TimeSpan.FromSeconds(1.4),
                     AutoReverse = true,
                     RepeatBehavior = RepeatBehavior.Forever,
-                    BeginTime = TimeSpan.FromMilliseconds(index * 180)
+                    BeginTime = TimeSpan.FromMilliseconds(index * 160)
                 };
                 var pulseY = new DoubleAnimation
                 {
-                    From = 0.92,
-                    To = 1.06,
-                    Duration = TimeSpan.FromSeconds(1.9),
+                    From = 0.94,
+                    To = 1.04,
+                    Duration = TimeSpan.FromSeconds(1.4),
                     AutoReverse = true,
                     RepeatBehavior = RepeatBehavior.Forever,
-                    BeginTime = TimeSpan.FromMilliseconds(index * 180)
+                    BeginTime = TimeSpan.FromMilliseconds(index * 160)
                 };
                 var transform = (ScaleTransform)badge.RenderTransform;
                 transform.BeginAnimation(ScaleTransform.ScaleXProperty, pulseX);
