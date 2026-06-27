@@ -337,7 +337,16 @@
                             <TreeView x:Name="DrivePdfTree" SelectedItemChanged="DrivePdfTree_SelectedItemChanged"
                                       Background="#0B1220" Foreground="White" BorderBrush="#334155"
                                       ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                      ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                <TreeView.Resources>
+                                    <Style TargetType="TreeViewItem">
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="FontSize" Value="13"/>
+                                        <Setter Property="Padding" Value="3,2"/>
+                                    </Style>
+                                </TreeView.Resources>
+                            </TreeView>
                         </DockPanel>
                     </Border>
 

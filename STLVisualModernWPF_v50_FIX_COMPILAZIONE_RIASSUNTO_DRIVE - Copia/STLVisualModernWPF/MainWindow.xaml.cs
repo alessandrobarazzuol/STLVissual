@@ -230,7 +230,40 @@ namespace STLVisualModernWPF
             if (remoteVersion != null && localVersion != null && localVersion >= remoteVersion)
                 return true;
 
+            // Se l'utente ha installato manualmente l'ultima Release scaricata da GitHub,
+            // il file di stato potrebbe non essere stato aggiornato. In quel caso confrontiamo
+            // la data dell'eseguibile installato con la data di pubblicazione della Release.
+            if (IsCurrentExecutableAtLeastAsNewAsRelease(release))
+                return true;
+
             return false;
+        }
+
+        private static bool IsCurrentExecutableAtLeastAsNewAsRelease(GitHubReleaseInfo release)
+        {
+            try
+            {
+                if (release.PublishedAt == null)
+                    return false;
+
+                string? exePath = Environment.ProcessPath;
+                if (string.IsNullOrWhiteSpace(exePath))
+                    exePath = Assembly.GetExecutingAssembly().Location;
+
+                if (string.IsNullOrWhiteSpace(exePath) || !File.Exists(exePath))
+                    return false;
+
+                DateTime exeWriteUtc = File.GetLastWriteTimeUtc(exePath);
+                DateTime releaseUtc = release.PublishedAt.Value.UtcDateTime;
+
+                // Tolleranza: la build può avere un timestamp leggermente precedente
+                // rispetto alla pubblicazione effettiva della Release.
+                return exeWriteUtc >= releaseUtc.AddMinutes(-45);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void SaveInstalledGitHubReleaseState(GitHubReleaseInfo release, GitHubReleaseAsset asset)
@@ -4875,6 +4908,19 @@ int main() {
             public string? WebViewLink { get; init; }
         }
 
+
+        private static TextBlock MakeDriveTreeHeader(string text)
+        {
+            return new TextBlock
+            {
+                Text = text,
+                Foreground = Brushes.White,
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            };
+        }
+
         private async void RefreshDrivePdfTree_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -4900,8 +4946,9 @@ int main() {
 
                 var rootItem = new TreeViewItem
                 {
-                    Header = "📁 PDF",
+                    Header = MakeDriveTreeHeader("📁 PDF"),
                     Tag = pdfFolderId,
+                    Foreground = Brushes.White,
                     IsExpanded = true
                 };
 
@@ -4957,8 +5004,9 @@ int main() {
                 {
                     var folderItem = new TreeViewItem
                     {
-                        Header = "📁 " + file.Name,
+                        Header = MakeDriveTreeHeader("📁 " + file.Name),
                         Tag = file.Id,
+                        Foreground = Brushes.White,
                         IsExpanded = false
                     };
 
@@ -4978,8 +5026,9 @@ int main() {
 
                     parentItem.Items.Add(new TreeViewItem
                     {
-                        Header = "📄 " + file.Name + FormatPdfSize(file.Size),
-                        Tag = pdf
+                        Header = MakeDriveTreeHeader("📄 " + file.Name + FormatPdfSize(file.Size)),
+                        Tag = pdf,
+                        Foreground = Brushes.White
                     });
 
                     count++;
