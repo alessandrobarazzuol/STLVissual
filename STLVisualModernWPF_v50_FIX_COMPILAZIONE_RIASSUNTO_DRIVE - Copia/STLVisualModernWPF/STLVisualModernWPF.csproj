@@ -12,8 +12,16 @@
 
   <ItemGroup>
     <Content Include="app.ico" />
-    <Content Include="stlvisual_release_tag.txt" CopyToOutputDirectory="Always" CopyToPublishDirectory="Always" />
     <Resource Include="Assets\login_background.jpeg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Tag release GitHub incorporato dentro l'EXE durante GitHub Actions.
+         Evita di copiare stlvisual_release_tag.txt, che poteva bloccare la build. -->
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ReleaseTag</_Parameter1>
+      <_Parameter2>$(RELEASE_TAG)</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 
   <ItemGroup>

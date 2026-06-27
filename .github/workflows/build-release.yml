@@ -42,15 +42,18 @@ jobs:
           "PROJECT_DIR=$($bat.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
           Write-Host "Cartella progetto trovata: $($bat.Directory.FullName)"
 
-      - name: Write release tag into program
+      - name: Prepare unique release tag
         shell: pwsh
         run: |
           $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
           $short = "${{ github.sha }}".Substring(0,7)
           $tag = "release-$stamp-$short"
           "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append
-          Set-Content -Path (Join-Path $env:PROJECT_DIR "stlvisual_release_tag.txt") -Value $tag -Encoding UTF8
-          Write-Host "Tag scritto nel programma: $tag"
+          Write-Host "Tag release GitHub incorporato nell'EXE: $tag"
+
+          # Evita conflitti con vecchie patch: questo file non deve più essere copiato nel publish.
+          $oldTagFile = Join-Path $env:PROJECT_DIR "stlvisual_release_tag.txt"
+          if (Test-Path $oldTagFile) { Remove-Item $oldTagFile -Force -ErrorAction SilentlyContinue }
 
       - name: Run setup batch
         shell: cmd

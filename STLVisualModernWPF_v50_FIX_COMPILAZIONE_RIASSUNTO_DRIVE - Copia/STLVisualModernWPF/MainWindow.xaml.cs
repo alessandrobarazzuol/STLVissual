@@ -240,14 +240,28 @@ namespace STLVisualModernWPF
         {
             try
             {
+                // Metodo definitivo: il tag della release viene incorporato dentro l'EXE
+                // da GitHub Actions tramite AssemblyMetadata("ReleaseTag", "...").
+                // Così non serve più copiare stlvisual_release_tag.txt e la build non si blocca.
+                var asm = Assembly.GetExecutingAssembly();
+                string? metadataTag = asm.GetCustomAttributes<AssemblyMetadataAttribute>()
+                    .FirstOrDefault(a => string.Equals(a.Key, "ReleaseTag", StringComparison.OrdinalIgnoreCase))
+                    ?.Value;
+
+                if (!string.IsNullOrWhiteSpace(metadataTag))
+                    return metadataTag.Trim();
+
+                // Compatibilità con installazioni vecchie create dalle patch precedenti.
                 string tagFile = System.IO.Path.Combine(AppContext.BaseDirectory, "stlvisual_release_tag.txt");
-                if (!File.Exists(tagFile)) return null;
-                return File.ReadAllText(tagFile, Encoding.UTF8).Trim();
+                if (File.Exists(tagFile))
+                    return File.ReadAllText(tagFile, Encoding.UTF8).Trim();
             }
             catch
             {
-                return null;
+                // Se non riesco a leggere il tag, il controllo aggiornamenti userà i fallback.
             }
+
+            return null;
         }
 
         private void SaveInstalledGitHubReleaseState(GitHubReleaseInfo release, GitHubReleaseAsset asset)
