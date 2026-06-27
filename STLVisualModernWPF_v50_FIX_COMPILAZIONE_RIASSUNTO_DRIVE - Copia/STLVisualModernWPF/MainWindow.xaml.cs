@@ -5052,14 +5052,6 @@ int main() {
             Process.Start(new ProcessStartInfo(currentPdfLocalPath) { UseShellExecute = true });
         }
 
-        private static string MakeSafeFileName(string name)
-        {
-            foreach (char c in System.IO.Path.GetInvalidFileNameChars())
-                name = name.Replace(c, '_');
-            return string.IsNullOrWhiteSpace(name) ? "documento.pdf" : name;
-        }
-
-
     }
 
     public class TreeNodeDemo
