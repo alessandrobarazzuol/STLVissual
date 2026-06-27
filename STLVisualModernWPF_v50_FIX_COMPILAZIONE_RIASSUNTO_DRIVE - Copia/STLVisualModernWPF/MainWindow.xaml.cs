@@ -220,9 +220,9 @@ namespace STLVisualModernWPF
                 string.Equals(NormalizeText(state?.InstalledTagName), releaseTag, StringComparison.OrdinalIgnoreCase))
                 return true;
 
-            if (!string.IsNullOrWhiteSpace(assetName) &&
-                string.Equals(NormalizeText(state?.InstalledAssetName), assetName, StringComparison.OrdinalIgnoreCase))
-                return true;
+            // Non confrontiamo più solo il nome dell'asset: spesso il setup viene pubblicato
+            // con lo stesso nome anche quando la Release è nuova. Il confronto principale
+            // deve essere il tag della Release installata.
 
             Version? remoteVersion = ExtractVersionFromRelease(release, asset);
             Version? localVersion = Assembly.GetExecutingAssembly().GetName().Version;
@@ -3657,6 +3657,39 @@ Per scorrerla devi copiarla e fare pop() sulla copia.",
         {
             // La vista ad albero serve solo per selezionare esercizi/cartelle.
             // Il doppio clic su un file JSON carica direttamente consegna e soluzione.
+        }
+
+
+        private void NewExercise_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var result = MessageBox.Show(
+                    "Vuoi preparare un nuovo esercizio vuoto?\n\nLa consegna e il codice attuali verranno svuotati. Se non li hai ancora salvati, premi No e usa prima Salva.",
+                    "Nuovo esercizio",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result != MessageBoxResult.Yes) return;
+
+                currentLoadedExerciseFile = null;
+
+                ExerciseTextBox.Clear();
+                ExerciseTextBox.Focus();
+
+                GeneratedCodeBox.Document.Blocks.Clear();
+                GeneratedCodeBox.Document.Blocks.Add(new Paragraph(new Run(string.Empty)));
+
+                MessageBox.Show(
+                    "Nuovo esercizio pronto.\n\nScrivi la consegna sopra e il codice sotto. Quando hai finito premi Salva.",
+                    "Nuovo esercizio",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Errore durante la preparazione del nuovo esercizio:\n" + ex.Message, "Nuovo esercizio", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private async void SaveExercise_Click(object sender, RoutedEventArgs e)
