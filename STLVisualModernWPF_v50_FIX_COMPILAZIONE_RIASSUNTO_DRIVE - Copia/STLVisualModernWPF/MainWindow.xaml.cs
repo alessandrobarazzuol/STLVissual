@@ -5228,8 +5228,8 @@ int main() {
         public PasswordWindow()
         {
             Title = "Accesso - STL Visual";
-            Width = 760;
-            Height = 460;
+            Width = 780;
+            Height = 510;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             ResizeMode = ResizeMode.NoResize;
             Foreground = Brushes.White;
@@ -5341,11 +5341,25 @@ int main() {
                 Background = new SolidColorBrush(Color.FromRgb(45, 45, 52)),
                 Foreground = Brushes.White
             };
+            var guide = new Button
+            {
+                Content = "Guida",
+                Width = 105,
+                Height = 38,
+                Margin = new Thickness(6),
+                FontWeight = FontWeights.Bold,
+                Background = new SolidColorBrush(Color.FromRgb(22, 101, 52)),
+                Foreground = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(34, 197, 94)),
+                ToolTip = "Mostra una guida rapida del programma prima del login"
+            };
             ok.IsDefault = true;
             cancel.IsCancel = true;
             ok.Click += (_, _) => { DialogResult = true; Close(); };
             cancel.Click += (_, _) => { DialogResult = false; Close(); };
+            guide.Click += (_, _) => ShowLoginGuide();
             row.Children.Add(ok);
+            row.Children.Add(guide);
             row.Children.Add(cancel);
             panel.Children.Add(row);
 
@@ -5368,6 +5382,92 @@ int main() {
             PreviewKeyDown += Password_KeyDown;
         }
 
+
+        private void ShowLoginGuide()
+        {
+            const string guida =
+                "STL Visual Modern WPF - Guida rapida\n\n" +
+                "COS'E' IL PROGRAMMA\n" +
+                "STL Visual Modern WPF e' un programma didattico per studiare e visualizzare i contenitori della libreria standard STL del C++. " +
+                "Gestisce in particolare std::map, std::list, std::vector, std::set, std::stack e std::queue.\n\n" +
+                "COSA PUOI FARE\n" +
+                "- Visualizzare il comportamento dei contenitori STL.\n" +
+                "- Consultare e modificare guide, definizioni, esempi, overload, costruttori e riassunti.\n" +
+                "- Scrivere consegne ed esercizi C++ nella sezione Testo esercizio / consegna.\n" +
+                "- Generare codice con AI tramite OpenRouter.\n" +
+                "- Compilare codice C++, usare debugger didattico, alberi binari e schede di supporto.\n\n" +
+                "SALVATAGGI\n" +
+                "Il pulsante generale SALVA salva le modifiche fatte a esercizi, guida, riassunti, strutture e dati del programma.\n" +
+                "Il pulsante Salva esercizio salva l'esercizio corrente e fa anche le stesse operazioni del pulsante SALVA generale; in piu' permette di salvare un nuovo esercizio scegliendo cartella e nome.\n\n" +
+                "GOOGLE DRIVE\n" +
+                "I dati vengono salvati nel tuo Google Drive, nella cartella STL Visual Modern WPF_Alessandro_Barazzoni.\n" +
+                "Per collegare il programma al Drive devi usare il file client secret / credentials presente in quella cartella: scaricalo dal tuo Drive e caricalo dal programma tramite Impostazioni API > Carica OAuth Drive.\n\n" +
+                "OPENROUTER E AI\n" +
+                "La generazione di codice con AI usa le API OpenRouter. La chiave API si trova sempre nella cartella Drive STL Visual Modern WPF_Alessandro_Barazzoni e puo' essere caricata/salvata dalle impostazioni del programma.\n\n" +
+                "AGGIORNAMENTI GITHUB\n" +
+                "Gli aggiornamenti vengono controllati nella repository pubblica GitHub del progetto. " +
+                "Quando viene caricata una patch su GitHub, GitHub Actions esegue automaticamente la build e crea una Release aggiornata con il setup. " +
+                "Il pulsante Aggiornamenti del programma controlla le Release GitHub e propone l'installazione quando trova una versione piu' nuova.";
+
+            var guideWindow = new Window
+            {
+                Title = "Guida rapida - STL Visual",
+                Width = 720,
+                Height = 620,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                ResizeMode = ResizeMode.CanResize,
+                Background = new SolidColorBrush(Color.FromRgb(8, 13, 24)),
+                Foreground = Brushes.White
+            };
+
+            var layout = new DockPanel { Margin = new Thickness(18) };
+            var title = new TextBlock
+            {
+                Text = "Guida rapida STL Visual",
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(120, 255, 170)),
+                Margin = new Thickness(0, 0, 0, 12)
+            };
+            DockPanel.SetDock(title, Dock.Top);
+            layout.Children.Add(title);
+
+            var close = new Button
+            {
+                Content = "Chiudi",
+                Width = 110,
+                Height = 36,
+                Margin = new Thickness(0, 12, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Background = new SolidColorBrush(Color.FromRgb(0, 132, 255)),
+                Foreground = Brushes.White,
+                FontWeight = FontWeights.Bold
+            };
+            close.Click += (_, _) => guideWindow.Close();
+            DockPanel.SetDock(close, Dock.Bottom);
+            layout.Children.Add(close);
+
+            var text = new TextBox
+            {
+                Text = guida,
+                IsReadOnly = true,
+                TextWrapping = TextWrapping.Wrap,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                Background = new SolidColorBrush(Color.FromRgb(12, 20, 36)),
+                Foreground = new SolidColorBrush(Color.FromRgb(235, 245, 255)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(0, 180, 90)),
+                BorderThickness = new Thickness(1.2),
+                FontSize = 14,
+                FontFamily = new FontFamily("Segoe UI"),
+                Padding = new Thickness(14)
+            };
+            layout.Children.Add(text);
+
+            guideWindow.Content = layout;
+            guideWindow.ShowDialog();
+        }
 
         private UIElement CreateStlCornerAnimation()
         {
